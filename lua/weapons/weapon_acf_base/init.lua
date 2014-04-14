@@ -1,0 +1,149 @@
+
+AddCSLuaFile( "cl_init.lua" )
+AddCSLuaFile( "shared.lua" )
+
+include('shared.lua')
+
+
+
+SWEP.Weight				= 5
+SWEP.AutoSwitchTo		= false
+SWEP.AutoSwitchFrom		= false
+
+
+
+function SWEP:Initialize()
+	self:SetWeaponHoldType(self.HoldType)
+	if IsValid(self:GetParent()) then
+		self.Owner = self:GetParent()
+		self:SetOwner(self:GetParent())
+	end
+	self:InitBulletData()
+	self:UpdateFakeCrate()
+end
+
+
+
+
+function SWEP:UpdateFakeCrate(realcrate)
+
+	if not IsValid(self.FakeCrate) then
+		self.FakeCrate = ents.Create("acf_fakecrate")
+	end
+
+	self.FakeCrate:RegisterTo(self)
+	
+	self.BulletData["Crate"] = self.FakeCrate:EntIndex()
+	self:SetNWString( "Sound", self.Primary.Sound )
+end
+
+
+
+
+function SWEP:OnRemove()
+
+	if not IsValid(self.FakeCrate) then return end
+	
+	local crate = self.FakeCrate
+	timer.Simple(15, function() if IsValid(crate) then crate:Remove() end end)
+
+end
+
+
+
+
+local nosplode = {AP = true, HP = true}
+local nopen = {HE = true, SM = true}
+function SWEP:DoAmmoStatDisplay()
+	local bType = self.BulletData.Type
+	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
+									tostring(self.BulletData.Caliber * 10),
+									bType,
+									self.BulletData.MuzzleVel
+								  )
+	
+	if not nopen[bType] then
+		local maxpen = self.BulletData.MaxPen or (ACF_Kinetic(
+														(self.BulletData.SlugMV or self.BulletData.MuzzleVel)*39.37,
+														(self.BulletData.SlugMass or self.BulletData.ProjMass),
+														self.BulletData.SlugMV and 999999 or self.BulletData.LimitVel or 900
+													  ).Penetration / (self.BulletData.SlugPenAera or self.BulletData.PenAera) * ACF.KEtoRHA
+												 )
+	
+		sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
+												maxpen
+											)
+	end
+
+	if not nosplode[bType] then
+		sendInfo = sendInfo .. string.format( 	", %.1fm blast",
+												(self.BulletData.BlastRadius or (((self.BulletData.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
+											)
+	end
+	
+	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
+end
+
+
+
+
+function SWEP:Deploy()
+	self:DoAmmoStatDisplay()
+end
+
+
+
+
+function SWEP:FireBullet()
+
+	self.Owner:LagCompensation( true )
+
+	local MuzzlePos = self.Owner:GetShootPos()
+	local MuzzleVec = self.Owner:GetAimVector()
+	local angs = self.Owner:EyeAngles()	
+	local MuzzlePos2 = MuzzlePos + angs:Forward() * self.AimOffset.x + angs:Right() * self.AimOffset.y
+	local MuzzleVecFinal = self:inaccuracy(MuzzleVec, self.Inaccuracy)
+	
+	self.BulletData["Pos"] = MuzzlePos
+	self.BulletData["Flight"] = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity() + MuzzleVecFinal * 16
+	self.BulletData["Owner"] = self.Owner
+	self.BulletData["Gun"] = self
+	
+	if self.BeforeFire then
+		self:BeforeFire()
+	end
+	
+	ACF_CreateBulletSWEP(self.BulletData, self, true)
+	
+	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
+	
+	self.Owner:LagCompensation( false )
+	
+end
+
+
+
+/*
+local FlashID = "XCF_SWEPMuzzle"
+util.AddNetworkString(FlashID)
+//*/
+function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir )
+	/*
+	net.Start(FlashID)
+		net.WriteEntity(self)
+		net.WriteFloat(self.BulletData["PropMass"] or 1)
+		net.WriteInt(ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1, 8)
+	net.SendPVS(MuzzlePos)
+	net.SendPAS(MuzzlePos)
+	//*/
+	//*
+	if CLIENT then return end
+	
+	local Effect = EffectData()
+		Effect:SetEntity( self )
+		Effect:SetScale( self.BulletData.PropMass or 1 )
+		Effect:SetMagnitude( self.ReloadTime )
+		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData.Type].netid or 1 )	--Encoding the ammo type into a table index
+	util.Effect( "ACF_SWEPMuzzleFlash", Effect, true, true )
+	//*/
+end
