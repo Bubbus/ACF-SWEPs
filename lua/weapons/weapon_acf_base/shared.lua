@@ -108,28 +108,12 @@ end
 
 
 
-local function biasedapproach(cur, target, incup, incdn)	
-	incdn = math.abs( incdn )
-	incup = math.abs( incup )
-
-    if (cur < target) then
-        return math.Clamp( cur + incdn, cur, target )
-    elseif (cur > target) then
-        return math.Clamp( cur - incup, target, cur )
-    end
-
-    return target	
-end
-
-
-
 
 SWEP.LastAim = Vector()
 SWEP.LastThink = CurTime()
 SWEP.WasCrouched = false
 
-local STAMINA_RECOVER = 0.09
-local VEL_SCALE = 60
+
 function SWEP:Think()
 
 	if self.ThinkBefore then self:ThinkBefore() end
@@ -141,70 +125,7 @@ function SWEP:Think()
 	end
 	
 	
-	local timediff = CurTime() - self.LastThink
-	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
-	//print(self.Owner:GetVelocity():Length())
-	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
-		self.Inaccuracy = self.MaxInaccuracy
-		self.Owner.XCFStamina = 0
-	end
-	
-	if isReloading then
-		self.Inaccuracy = self.MaxInaccuracy
-	else
-	
-		local inaccuracydiff = self.MaxInaccuracy - self.MinInaccuracy
-		
-		//local vel = math.Clamp(math.sqrt(self.Owner:GetVelocity():Length()/400), 0, 1) * inaccuracydiff	// max vel possible is 3500
-		local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff * VEL_SCALE	// max vel possible is 3500
-		local aim = self.Owner:GetAimVector()
-		
-		local difflimit = self.InaccuracyAimLimit - self.Inaccuracy
-		difflimit = difflimit < 0 and 0 or difflimit
-		
-		local diffaim = math.min(aim:Distance(self.LastAim) * 30, difflimit)
-		
-		local crouching = self.Owner:Crouching()
-		local decay = self.InaccuracyDecay
-		local penalty = 0
-		
-		//print(self.Owner:KeyDown(IN_SPEED), self.Owner:KeyDown(IN_RUN))
-		
-		local healthFract = self.Owner:Health() / 100
-		self.MaxStamina = math.Clamp(healthFract, 0.5, 1)
-		
-		if self.Owner:KeyDown(IN_SPEED) then
-			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain, 0, 1)
-		else
-			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER) * timediff
-			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
-		end
-		
-		decay = decay * self.Owner.XCFStamina
-		
-		if crouching then
-			decay = decay * self.InaccuracyCrouchBonus
-		end
-		
-		if self.WasCrouched != crouching then
-			penalty = penalty + self.InaccuracyDuckPenalty
-		end
-		
-		//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
-		local rawinaccuracy = self.MinInaccuracy + vel * timediff
-		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty + diffaim
-		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
-		
-		//print("inacc", self.Inaccuracy)
-		
-		self.LastAim = aim
-		XCFDBG_ThinkTime = timediff
-		self.LastThink = CurTime()
-		self.WasCrouched = self.Owner:Crouching()
-	
-		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
-	end
+	ACF.SWEP.DoAccuracy(self)
 	
 	
 	if self.ThinkAfter then self:ThinkAfter() end
