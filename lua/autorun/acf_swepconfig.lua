@@ -22,6 +22,13 @@ local STAMINA_RECOVER = 0.09
 local VEL_SCALE = 60
 
 
+// In shooter mode, what the minimum inaccuracy is multiplied by.  This balances Shooter with WOT.
+local SHOOTER_INACC_MUL = 2
+
+// In shooter mode, how fast should the reticule grow/shrink?
+local SHOOTER_LERP_MUL = 3
+
+
 
 
 
@@ -185,8 +192,8 @@ function aim.Shooter(self)
 			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
 		end
 		
-		local rawinaccuracy = self.MinInaccuracy * 2 + math.max(inacc + self.AddInacc, 1 - self.Owner.XCFStamina) * inaccuracydiff
-		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, self.InaccuracyDecay * 4, self.AccuracyDecay * 4)
+		local rawinaccuracy = self.MinInaccuracy * SHOOTER_INACC_MUL + math.max(inacc + self.AddInacc, 1 - self.Owner.XCFStamina) * inaccuracydiff
+		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, self.InaccuracyDecay * SHOOTER_LERP_MUL, self.AccuracyDecay * SHOOTER_LERP_MUL)
 		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
 		
 		//print("inacc", self.Inaccuracy)
