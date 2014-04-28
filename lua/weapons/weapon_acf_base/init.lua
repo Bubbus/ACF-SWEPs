@@ -55,19 +55,26 @@ end
 local nosplode = {AP = true, HP = true}
 local nopen = {HE = true, SM = true}
 function SWEP:DoAmmoStatDisplay()
-	local bType = self.BulletData.Type
+
+	local bdata = self.BulletData
+
+	if bdata.IsShortForm then
+		bdata = ACF_ExpandBulletData(bdata)
+	end
+
+	local bType = bdata.Type
 	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
-									tostring(self.BulletData.Caliber * 10),
+									tostring(bdata.Caliber * 10),
 									bType,
-									self.BulletData.MuzzleVel
+									bdata.MuzzleVel
 								  )
 	
 	if not nopen[bType] then
-		local maxpen = self.BulletData.MaxPen or (ACF_Kinetic(
-														(self.BulletData.SlugMV or self.BulletData.MuzzleVel)*39.37,
-														(self.BulletData.SlugMass or self.BulletData.ProjMass),
-														self.BulletData.SlugMV and 999999 or self.BulletData.LimitVel or 900
-													  ).Penetration / (self.BulletData.SlugPenAera or self.BulletData.PenAera) * ACF.KEtoRHA
+		local maxpen = bdata.MaxPen or (ACF_Kinetic(
+														(bdata.SlugMV or bdata.MuzzleVel)*39.37,
+														(bdata.SlugMass or bdata.ProjMass),
+														bdata.SlugMV and 999999 or bdata.LimitVel or 900
+													  ).Penetration / (bdata.SlugPenAera or bdata.PenAera) * ACF.KEtoRHA
 												 )
 	
 		sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
@@ -77,7 +84,7 @@ function SWEP:DoAmmoStatDisplay()
 
 	if not nosplode[bType] then
 		sendInfo = sendInfo .. string.format( 	", %.1fm blast",
-												(self.BulletData.BlastRadius or (((self.BulletData.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
+												(bdata.BlastRadius or (((bdata.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
 											)
 	end
 	

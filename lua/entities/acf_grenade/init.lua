@@ -4,6 +4,8 @@ AddCSLuaFile( "shared.lua" )
 
 include('shared.lua')
 
+CreateConVar('sbox_max_acf_grenade', 20)
+
 
 
 
@@ -19,6 +21,7 @@ function ENT:Initialize()
 	self.Inputs = Wire_CreateInputs( self, { "Detonate" } )
 	self.Outputs = Wire_CreateOutputs( self, {} )
 	
+	self.ThinkDelay = 0.1
 	--self.ACF_HEIgnore = true
 	
 end
@@ -72,6 +75,22 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 	Bomb:SetPlayer(Owner)
 	Bomb.Owner = Owner
 	
+	if type(Id) == "table" and type(Data1) == "string" then
+		Mdl = Data1
+		local bdata = Id
+		Id = bdata.Id
+		Data1 = bdata.Data1 or bdata.Id
+		Data2 = bdata.Type or bdata.Data2
+		Data3 = bdata.PropLength or bdata.Data3
+		Data4 = bdata.ProjLength or bdata.Data4
+		Data5 = bdata.Data5
+		Data6 = bdata.Data6
+		Data7 = bdata.Data7
+		Data8 = bdata.Data8
+		Data9 = bdata.Data9
+		Data10 = bdata.Data10
+	end
+	
 	Mdl = Mdl or ACF.Weapons.Guns[Id].model
 	
 	Bomb.Id = Id
@@ -82,7 +101,7 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 	
 	return Bomb
 end
-list.Set( "ACFCvars", "xcf_bomb", {"id", "data1", "data2", "data3", "data4", "data5", "data6", "data7", "data8", "data9", "data10", "mdl"} )
+list.Set( "ACFCvars", "acf_grenade", {"id", "data1", "data2", "data3", "data4", "data5", "data6", "data7", "data8", "data9", "data10", "mdl"} )
 duplicator.RegisterEntityClass("acf_grenade", MakeACF_Grenade, "Pos", "Angle", "Id", "RoundId", "RoundType", "RoundPropellant", "RoundProjectile", "RoundData5", "RoundData6", "RoundData7", "RoundData8", "RoundData9", "RoundData10", "Model" )
 
 
@@ -91,7 +110,7 @@ duplicator.RegisterEntityClass("acf_grenade", MakeACF_Grenade, "Pos", "Angle", "
 function ENT:CreateBomb(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 
 	self:SetModelEasy(Mdl)
-
+	--print(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 	--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
 	self.RoundId = Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
 	self.RoundType = Data2		--Type of round, IE AP, HE, HEAT ...
@@ -131,7 +150,7 @@ end
 
 function ENT:SetModelEasy(mdl)
 	mdl = Model(mdl)
-	if not mdl then return false end
+	if not mdl then return end
 	self:SetModel( Model(mdl) )
 	self.Model = mdl
 	
@@ -151,6 +170,19 @@ end
 
 
 function ENT:SetBulletData(bdata)
+
+	--[[
+	if bdata.IsShortForm or bdata.Data1 then
+		self:CreateBomb(
+			bdata.Id,
+			bdata.Data1 or bdata.Id,
+			bdata.Type or bdata.Data2,
+			bdata.PropLength or bdata.Data3,
+			bdata.ProjLength or bdata.Data4,
+			bdata.Data5, bdata.Data6, bdata.Data7, bdata.Data8, bdata.Data9, bdata.Data10, nil)
+	end
+	]]--
+
 	self.BulletData = table.Copy(bdata)
 	self.BulletData.Entity = self
 	self.BulletData.Crate = self
@@ -168,22 +200,28 @@ end
 
 
 local trace = {}
-local thinktime = 0.1
+function ENT:TraceFunction()
+	local pos = self:GetPos()
+	trace.start = pos
+	trace.endpos = pos + self:GetVelocity() * self.ThinkDelay
+	trace.filter = self
+
+	local res = util.TraceEntity( trace, self ) 
+	if res.Hit then
+		self:OnTraceContact(res)
+	end
+end
+
+
+
+
 function ENT:Think()
  	
 	if self.ShouldTrace then
-		local pos = self:GetPos()
-		trace.start = pos
-		trace.endpos = pos + self:GetVelocity() * thinktime
-		trace.filter = self
-
-		local res = util.TraceEntity( trace, self ) 
-		if res.Hit then
-			self:OnTraceContact(res)
-		end
+		self:TraceFunction()
 	end
 	
-	self:NextThink(CurTime() + thinktime)
+	self:NextThink(CurTime() + self.ThinkDelay)
 	
 	return true
 		
@@ -196,21 +234,27 @@ function ENT:Detonate()
 	
 	if self.Detonated then return end
 	
-	--print("boom2!")
 	self.Detonated = true
 	
-	--print(self.BulletData.Type, ACF.RoundTypes[self.BulletData.Type]["endflight"])
-	ACF.RoundTypes[self.BulletData.Type]["endflight"]( -1337, self.BulletData, self:GetPos(), self:GetUp() )
-	
-	self.BulletData.SimPos = self:GetPos()
+	local bdata = self.BulletData
+	local pos = self:GetPos()
+	local up = self:GetUp()
 	local phys = self:GetPhysicsObject()
-	self.BulletData.SimFlight = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
-	ACF.RoundTypes[self.BulletData.Type]["endeffect"]( nil, self.BulletData)
+	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
+	
+	--pbn(bdata)
+	
+	bdata.RoundMass = bdata.RoundMass or bdata.ProjMass
+	bdata.ProjMass = bdata.ProjMass or bdata.RoundMass 
 	
 	self.Entity:Remove()
 	
-	--timer.Simple(15, function() if self and self.Entity and IsValid(self.Entity) then self.Entity:Remove() end end)
-	--self.Entity:Remove()
+	ACF.RoundTypes[bdata.Type]["endflight"]( -1337, bdata, pos, up )
+	
+	bdata.SimPos = pos
+	bdata.SimFlight = phyvel
+	
+	ACF.RoundTypes[bdata.Type]["endeffect"]( nil, bdata)
 
 end
 
