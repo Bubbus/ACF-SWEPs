@@ -26,11 +26,14 @@
 		
 		
 	local GunSound = Gun:GetNWString( "Sound" ) or ACF.Classes["GunClass"][Class]["sound"] or ""
-	--print("muzzle", Gun, Propellant, ReloadTime, Class, RoundType, GunSound)
 		
 	if Gun:IsValid() then
 	
-		if CLIENT and LocalPlayer() == Gun.Owner and not FromAnimationEvent then return end
+		local lply = false
+		if CLIENT and LocalPlayer() == Gun.Owner then
+			if not FromAnimationEvent then return end
+			lply = true
+		end
 	
 		if Propellant > 0 then
 		
@@ -48,7 +51,14 @@
 			end
 			
 			local aimoffset = Gun.AimOffset or Vector()
-			local muzzoffset = (Muzzle.Ang:Forward() * aimoffset.x) + (Muzzle.Ang:Right() * aimoffset.y) + (Muzzle.Ang:Up() * aimoffset.z)
+			local muzzoffset
+			if not lply then
+				muzzoffset = (Muzzle.Ang:Forward() * aimoffset.x) + (Muzzle.Ang:Right() * aimoffset.y) + (Muzzle.Ang:Up() * aimoffset.z)
+			else
+				local mdl = Gun.Owner:GetViewModel()
+				Muzzle.Pos = mdl:GetAttachment(1).Pos
+				muzzoffset = Vector(0,0,0)
+			end
 			
 			Muzzle.Pos = Muzzle.Pos + muzzoffset
 			

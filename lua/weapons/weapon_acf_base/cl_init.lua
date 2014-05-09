@@ -3,8 +3,8 @@ include('shared.lua')
 SWEP.DrawAmmo			= true
 SWEP.DrawWeaponInfoBox	= true
 SWEP.BounceWeaponIcon   = true
-SWEP.SwayScale			= 0					-- The scale of the viewmodel sway
-SWEP.BobScale			= 2					-- The scale of the viewmodel bob
+SWEP.SwayScale			= 1					-- The scale of the viewmodel sway
+SWEP.BobScale			= 0.5					-- The scale of the viewmodel bob
 SWEP.IsACF				= true
 
 
@@ -45,6 +45,14 @@ function SWEP:Initialize()
 	self.curVisInacc = self.MaxInaccuracy
 	self.smoothFactor = 0
 	
+	self.fromPos = Vector(0,0,0)
+	self.toPos = Vector(0,0,0)
+	
+	self.fromAng = Angle(0,0,0)
+	self.toAng = Angle(0,0,0)
+	
+	self.zoomProgress = 1
+	
 	self:InitBulletData()
 	
 	--print(self:GetParent())
@@ -72,6 +80,23 @@ function SWEP:ZoomThink()
 	if zoomed != self.Zoomed then
 		//print(zoomed, "has changed!!11")
 		self.Zoomed = zoomed
+		
+		if zoomed then
+			self.fromPos = self.curPos or Vector(0,0,0)
+			self.toPos = ACF.SWEP.IronSights and (self.IronSightsPos or Vector(0,0,0)) or (self.ZoomPos or Vector(2, 2, 2))
+			
+			self.fromAng = self.curAng or Angle(0,0,0)
+			self.toAng = self.IronSightsAng or Angle(0,0,0)
+			self.zoomProgress = 0
+		else
+			self.fromPos = self.curPos or Vector(0,0,0)
+			self.toPos = self.UnzoomedPos or Vector(0,0,0)
+			
+			self.fromAng = self.curAng or Angle(0,0,0)
+			self.toAng = self.UnzoomedAng or Angle(0,0,0)
+			self.zoomProgress = 0
+		end
+		
 		
 		if self.Zoomed then
 			self.cachedmin = self.cachedmin or self.MinInaccuracy
@@ -332,13 +357,15 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 	
 	
 	if drawcircle then
-		local circlehue = Color(255, servstam*255, servstam*255, 255)
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and not self.HasScope) and 20 or 255
+	
+		local circlehue = Color(255, servstam*255, servstam*255, alpha)
 
 		if self.ShotSpread and self.ShotSpread > 0 then
 			surface.DrawCircle(scrpos.x, scrpos.y, aimRadius , Color(0, 0, 0, 128) )
 			aimRadius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
-		draw.Arc(scrpos.x, scrpos.y, aimRadius, -3, (1-fractLeft)*360, 360, 5, Color(0, 0, 0, 255))
+		draw.Arc(scrpos.x, scrpos.y, aimRadius, -3, (1-fractLeft)*360, 360, 5, Color(0, 0, 0, alpha))
 		draw.Arc(scrpos.x, scrpos.y, aimRadius, -1.5, (1-fractLeft)*360, 360, 5, circlehue)
 		
 	end
@@ -361,6 +388,25 @@ end
 
 
 
+function SWEP:ZoomTween(t)
+	
+	local s = 1.7
+	
+	if t < 0.5 then
+		t = t * 1.525
+		--s = s * 1.525
+		--return 0.5*(t*t*((s+1)*t - s))
+		return -math.cos(t * math.pi / 2) + 1
+	else
+		t = t * 2
+		t = t - 2
+		s = s * 1.525
+		return 0.5*(t*t*((s+1)*t+ s) + 2)
+	end
+end
+
+
+
 /*
 SWEP.LastWobble = Vector()
 SWEP.WobbleTo = Vector()
@@ -372,17 +418,47 @@ local lissasep = math.pi / 2
 function SWEP:GetViewModelPosition( pos, ang )
 	if not CLIENT then return pos, ang end	// idk.
 	
+	--print("Before: ", pos, ang)
+	
+	self.lastViewMod = self.lastViewMod or RealTime()
+	
 	self.lastaccuracy = self.lastaccuracy or self.MaxInaccuracy
 	
 	local time = CurTime() * 0.33
 	local accuracy = (self.Inaccuracy * 0.02 + self.lastaccuracy * 0.98) * 0.25
 	
+	--ang = self.Owner:EyeAngles()
+	ang = self.Owner:GetAimVector():Angle()
+	local trace = self.Owner:GetEyeTrace()
+	--ang = self.Owner:GetEyeTrace()
+	
 	local x = accuracy * math.sin(lissax * time + lissasep + time*0.01)
 	local y = accuracy * math.sin(lissay * time)
+	if self:GetNetworkedBool("Zoomed") then
+		y = y / 2 + accuracy
+	else
+		
+	end
 	local sway = Angle(y, x, 0)
 	self.lastaccuracy = accuracy * 4
 	
-	local pos2, aim2 = LocalToWorld(pos, sway, pos, ang)//(aim + wobble):GetNormalized()
-	return pos, aim2
+	local tween = self:ZoomTween(self.zoomProgress)
+	--print(self.zoomProgress, tween)
+	
+	self.curPos = LerpVector(tween, self.fromPos, self.toPos)
+	local modpos = pos + self.curPos
+	self.curAng = LerpAngle(tween, self.fromAng, self.toAng)
+	sway = sway + self.curAng
+	
+	local pos2, aim2 = LocalToWorld(self.curPos, sway, pos, ang)//(aim + wobble):GetNormalized()
+	--print(pos, pos2)
+	
+	self.zoomProgress = math.Clamp(self.zoomProgress + (RealTime() - self.lastViewMod) * 1 / (self.ZoomTime or 1), 0, 1)
+	--print((RealTime() - self.lastViewMod), self.zoomProgress)
+	self.lastViewMod = RealTime()
+	
+	--print("After:  ", pos, ang)
+	
+	return pos2, aim2
 
 end

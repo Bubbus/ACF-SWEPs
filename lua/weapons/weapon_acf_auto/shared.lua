@@ -43,11 +43,15 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
-SWEP.AimOffset = Vector(32, 8, -1)
+SWEP.AimOffset = Vector(32, 8, -7)
 
 SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
+
+SWEP.IronSightsPos = Vector(-3.23, 5.15, 2.290)
+SWEP.ZoomPos = Vector(2,2,2)
+SWEP.IronSightsAng = Angle(0, 0, 0)
 
 SWEP.MinInaccuracy = 0.5
 SWEP.MaxInaccuracy = 7

@@ -15,6 +15,9 @@
 // What accuracy scheme to use?  Choose from WOT, Shooter
 local AimStyle = "WOT"
 
+// USe ironsights when aiming, or just hug the weapon closer?
+local IronSights = true
+
 // How fast should stamina recover after sprinting?  This is a scaling number.
 local STAMINA_RECOVER = 0.09
 
@@ -41,6 +44,7 @@ local SHOOTER_LERP_MUL = 3
 ACF = ACF or {}
 ACF.SWEP = ACF.SWEP or {}
 ACF.SWEP.Aim = ACF.SWEP.Aim or {}
+ACF.SWEP.IronSights = IronSights
 
 local swep = ACF.SWEP
 local aim = ACF.SWEP.Aim

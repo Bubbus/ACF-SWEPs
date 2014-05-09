@@ -52,6 +52,8 @@ SWEP.AimOffset = Vector(32, 8, -1)
 SWEP.ScopeChopPos = Vector(0, 0, 0)
 SWEP.ScopeChopAngle = Angle(0, 0, -90)
 
+SWEP.ZoomTime = 0.4
+
 SWEP.MinInaccuracy = 0.5
 SWEP.MaxInaccuracy = 12
 SWEP.Inaccuracy = SWEP.MaxInaccuracy

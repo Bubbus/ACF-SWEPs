@@ -3,7 +3,7 @@
 
 if (CLIENT) then
 	
-	SWEP.PrintName			= "ACF Heavy Rifle"
+	SWEP.PrintName			= "ACF Rifle"
 	SWEP.Author				= "Bubbus"
 	SWEP.Slot				= 3
 	SWEP.SlotPos			= 3
@@ -17,14 +17,14 @@ end
 util.PrecacheSound( "weapons/launcher_fire.wav" )
 
 SWEP.Base				= "weapon_acf_base"
-SWEP.ViewModelFlip			= false
+SWEP.ViewModelFlip		= false
+SWEP.ViewModelFOV 		= 60
 
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_snip_sg550.mdl";
+SWEP.ViewModel 			= "models/weapons/v_garand.mdl";
 SWEP.WorldModel 		= "models/weapons/w_snip_sg550.mdl";
-SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
 SWEP.AutoSwitchTo		= false
@@ -36,7 +36,7 @@ SWEP.Primary.Delay			= 0.1
 SWEP.Primary.DefaultClip	= 30
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_SG550.Single"
+SWEP.Primary.Sound 			= "^acf_extra/tankfx/gnomefather/7mm1.wav"
 
 SWEP.ReloadTime				= 4
 
@@ -45,18 +45,23 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
-SWEP.AimOffset = Vector(32, 8, -1)
+SWEP.AimOffset = Vector(30, 8, -6)
 
 SWEP.ScopeChopPos = Vector(0, 5, 0)
 SWEP.ScopeChopAngle = Angle(0, 90, 0)
 SWEP.WeaponBone = "v_weapon.sg550_Parent"
 
+SWEP.IronSightsPos = Vector(-3.016, 6.966, 5.08)
+SWEP.ZoomPos = Vector(2,3,4)
+SWEP.IronSightsAng = Angle(0, 0, 0)
+--SWEP.ZoomTime = 0.4
+
 SWEP.MinInaccuracy = 0.25
 SWEP.MaxInaccuracy = 8
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.12
-SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 6
+SWEP.InaccuracyDecay = 0.15
+SWEP.AccuracyDecay = 0.25
+SWEP.InaccuracyPerShot = 5
 SWEP.InaccuracyCrouchBonus = 1.4
 SWEP.InaccuracyDuckPenalty = 6
 
@@ -65,10 +70,10 @@ SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true
-SWEP.HasScope = true
-SWEP.ZoomInaccuracyMod = 0.5
-SWEP.ZoomDecayMod = 1.3
-SWEP.ZoomFOV = 30
+SWEP.HasScope = false
+SWEP.ZoomInaccuracyMod = 0.6
+SWEP.ZoomDecayMod = 1.5
+SWEP.ZoomFOV = 50
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"

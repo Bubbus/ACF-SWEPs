@@ -109,15 +109,17 @@ self.BulletData["Type"]		= "HE"
 
 self.BulletData["Colour"]		= Color(255, 255, 255)
 self.BulletData["Data10"]		= "0.00"
-self.BulletData["Data5"]		= "2319.57"
-self.BulletData["Data6"]		= "0"
+self.BulletData["Data5"]		= "1500.00"
+self.BulletData["Data6"]		= "30.000000"
 self.BulletData["Data7"]		= "0"
 self.BulletData["Data8"]		= "0"
 self.BulletData["Data9"]		= "0"
 self.BulletData["Id"]		= "75mmHW"
-self.BulletData["ProjLength"]		= "59.99"
+self.BulletData["ProjLength"]		= "41.09"
 self.BulletData["PropLength"]		= "0.01"
 self.BulletData["Type"]		= "HE"
+
+
 self.BulletData.IsShortForm = true
 
 

@@ -46,6 +46,10 @@ SWEP.Secondary.Ammo			= "none"
 
 SWEP.AimOffset = Vector(32, 8, -1)
 
+SWEP.IronSightsPos = Vector(-2, -5.2, 2.19)
+SWEP.ZoomPos = Vector(2,-2,2)
+SWEP.IronSightsAng = Angle(0.2, 0.74, 0)
+
 SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
@@ -59,15 +63,15 @@ SWEP.InaccuracyPerShot = 6
 SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 1
 
-SWEP.ShotSpread = 3
+SWEP.ShotSpread = 2
 
 SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true
-SWEP.ZoomInaccuracyMod = 0.6
-SWEP.ZoomDecayMod = 1.3
+SWEP.ZoomInaccuracyMod = 0.1
+SWEP.ZoomDecayMod = 1.6
 SWEP.ZoomFOV = 65
 
 SWEP.Class = "MG"

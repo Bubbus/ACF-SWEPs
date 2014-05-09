@@ -125,7 +125,7 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	--self.BulletData.ProjClass = XCF.ProjClasses.Bomb or error("Could not find the Bomb projectile type!")
 	
-	local flight = MuzzleVecFinal * (self.BulletData["MuzzleVel"] or 15) * 39.37 + self.Owner:GetVelocity()
+	local flight = MuzzleVecFinal * (self.BulletData["MuzzleVel"] or 5) * 39.37 + self.Owner:GetVelocity()
 	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 0.66) * 1
 	self.BulletData["Flight"] = flight * throwmod
 	

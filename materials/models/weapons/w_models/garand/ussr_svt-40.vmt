@@ -1,0 +1,5 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\weapons\w_models\garand/ussr_svt-40"
+"$nocull" "1" 
+}

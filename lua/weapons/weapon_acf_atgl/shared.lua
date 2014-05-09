@@ -69,6 +69,10 @@ SWEP.ZoomInaccuracyMod = 0.5
 SWEP.ZoomDecayMod = 1.2
 SWEP.ZoomFOV = 50
 
+SWEP.IronSightsPos = Vector(-5, 5, -3)
+SWEP.ZoomPos = Vector(-5, 5, -3)
+SWEP.IronSightsAng = Angle(0, 0, 0)
+
 SWEP.Class = "C"
 SWEP.FlashClass = "AC"
 SWEP.Launcher = true

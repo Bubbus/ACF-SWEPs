@@ -22,8 +22,8 @@ SWEP.ViewModelFlip			= false
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_pist_deagle.mdl";
-SWEP.WorldModel 		= "models/weapons/w_pist_deagle.mdl";
+SWEP.ViewModel 			= "models/weapons/v_pist_p228.mdl";
+SWEP.WorldModel 		= "models/weapons/w_pist_p228.mdl";
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
@@ -31,12 +31,12 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Recoil			= 2
-SWEP.Primary.ClipSize		= 8
+SWEP.Primary.ClipSize		= 10
 SWEP.Primary.Delay			= 0.1
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_Deagle.Single"
+SWEP.Primary.Sound 			= "Weapon_P228.Single"
 
 SWEP.ReloadTime				= 2.5
 
@@ -45,11 +45,15 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
-SWEP.AimOffset = Vector(32, 8, -1)
+SWEP.AimOffset = Vector(18, 10, -4)
 
 SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
+
+SWEP.IronSightsPos = Vector(-2, -4.74, 2.98)
+SWEP.ZoomPos = Vector(2,-2,2)
+SWEP.IronSightsAng = Angle(0.45, 0, 0)
 
 SWEP.MinInaccuracy = 1
 SWEP.MaxInaccuracy = 5
