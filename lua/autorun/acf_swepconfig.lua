@@ -71,6 +71,7 @@ function aim.WOT(self)
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
 	//print(self.Owner:GetVelocity():Length())
+	self.LastAim = self.LastAim or Vector(1, 0, 0)
 	
 	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
 		self.Inaccuracy = self.MaxInaccuracy
