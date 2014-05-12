@@ -13,7 +13,7 @@
 
 
 // What accuracy scheme to use?  Choose from WOT, Shooter
-local AimStyle = "Shooter"
+local AimStyle = "WOT"
 
 // USe ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
