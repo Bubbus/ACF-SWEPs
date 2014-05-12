@@ -13,7 +13,7 @@
 
 
 // What accuracy scheme to use?  Choose from WOT, Shooter
-local AimStyle = "WOT"
+local AimStyle = "Shooter"
 
 // USe ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
@@ -29,7 +29,7 @@ local VEL_SCALE = 60
 local SHOOTER_INACC_MUL = 2
 
 // In shooter mode, how fast should the reticule grow/shrink?
-local SHOOTER_LERP_MUL = 3
+local SHOOTER_LERP_MUL = 2
 
 
 
@@ -170,25 +170,29 @@ function aim.Shooter(self)
 			inacc = inacc + 0.333
 			
 			if sprinting then
-				inacc = inacc + 0.333
+				inacc = inacc + 0.4
 			elseif walking then
-				inacc = inacc - 0.166				
+				inacc = inacc - 0.2			
 			end
 		end
 		
 		if not crouching then
-			inacc = inacc + 0.33
+			inacc = inacc + 0.25
 		end
 		
 		
-		local jumping = self.Owner:KeyDown(IN_JUMP)
-		if not self.WasJumping then--and self.Owner:OnGround() then
-			self.Inaccuracy = self.Inaccuracy + 0.5 * inaccuracydiff
-		end
+		local zoomed = self:GetNetworkedBool("Zoomed")
+		if zoomed then inacc = inacc * 0.5 end
+		
+		
+		--local jumping = self.Owner:KeyDown(IN_JUMP)
+		--if jumping and not self.WasJumping then--and self.Owner:OnGround() then
+		--	self.Inaccuracy = self.Inaccuracy + 0.5 * inaccuracydiff
+		--end
 		
 		
 		local healthFract = self.Owner:Health() / 100
-		self.MaxStamina = math.Clamp(healthFract, 0.5, 1)
+		self.MaxStamina = math.Clamp(healthFract, 0.25, 1)
 		
 		if self.Owner:KeyDown(IN_SPEED) then
 			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain, 0, 1)
@@ -197,7 +201,8 @@ function aim.Shooter(self)
 			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
 		end
 		
-		local rawinaccuracy = self.MinInaccuracy * SHOOTER_INACC_MUL + math.max(inacc + self.AddInacc, 1 - self.Owner.XCFStamina) * inaccuracydiff
+		local accuracycap = ((1 - self.Owner.XCFStamina) * 0.5) ^ 2
+		local rawinaccuracy = self.MinInaccuracy * SHOOTER_INACC_MUL + math.max(inacc + self.AddInacc, accuracycap) * inaccuracydiff
 		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, self.InaccuracyDecay * SHOOTER_LERP_MUL, self.AccuracyDecay * SHOOTER_LERP_MUL)
 		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
 		
