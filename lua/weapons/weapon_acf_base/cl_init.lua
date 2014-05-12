@@ -357,7 +357,7 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 	
 	
 	if drawcircle then
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and not self.HasScope) and 20 or 255
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
 	
 		local circlehue = Color(255, servstam*255, servstam*255, alpha)
 

@@ -69,6 +69,7 @@ SWEP.ZoomInaccuracyMod = 0.6
 SWEP.ZoomDecayMod = 1
 SWEP.ZoomFOV = 65
 
+SWEP.IronSights = true
 SWEP.IronSightsPos = Vector(-2, 4.46, 2.24)
 SWEP.ZoomPos = Vector(2,2,2)
 SWEP.IronSightsAng = Angle(0.35, 0, 0)

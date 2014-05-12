@@ -51,6 +51,7 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
+SWEP.IronSights = true
 SWEP.IronSightsPos = Vector(-2, -4.74, 2.98)
 SWEP.ZoomPos = Vector(2,-2,2)
 SWEP.IronSightsAng = Angle(0.45, 0, 0)

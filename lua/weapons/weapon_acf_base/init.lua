@@ -122,7 +122,7 @@ function SWEP:FireBullet()
 	
 	ACF_CreateBulletSWEP(self.BulletData, self, true)
 	
-	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
+	self:MuzzleEffect( MuzzlePos2, MuzzleVec, true )
 	
 	self.Owner:LagCompensation( false )
 	
@@ -134,7 +134,7 @@ end
 local FlashID = "XCF_SWEPMuzzle"
 util.AddNetworkString(FlashID)
 //*/
-function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir )
+function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir, realcall )
 	/*
 	net.Start(FlashID)
 		net.WriteEntity(self)
@@ -144,7 +144,7 @@ function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir )
 	net.SendPAS(MuzzlePos)
 	//*/
 	//*
-	if CLIENT then return end
+	if CLIENT or not realcall then return end
 	
 	local Effect = EffectData()
 		Effect:SetEntity( self )

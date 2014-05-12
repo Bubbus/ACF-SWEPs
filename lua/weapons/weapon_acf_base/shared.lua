@@ -186,7 +186,7 @@ end
 function SWEP:CanPrimaryAttack()
 	if self.Weapon:GetNetworkedBool( "reloading", false ) then return false end
 
-	//if CurTime() > self.Weapon:GetNextPrimaryFire() then return end
+	if CurTime() < self.Weapon:GetNextPrimaryFire() then return end
 	if self.Primary.ClipSize < 0 then
 		local ammoct = self.Owner:GetAmmoCount( self.Primary.Ammo )
 		if ammoct <= 0 then return false end
@@ -340,4 +340,5 @@ end
 
 function SWEP:Equip(ply)
 	self.Owner = ply
+	self:SetNextPrimaryFire(CurTime())
 end

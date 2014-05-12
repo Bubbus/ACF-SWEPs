@@ -66,9 +66,15 @@ function ACF_CustomBulletLaunch(BData)
 	BData.Filter = BData.Filter or { BData["Gun"] }
 	BData.Index = ACF.CurBulletIndex
 		
-	ACF.Bullet[ACF.CurBulletIndex] = table.Copy(BData)		--Place the bullet at the current index pos
-	ACF_BulletClient( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex], "Init" , 0 )
-	ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
+	if XCF then
+		local BulletData = XCF.Ballistics.Launch(BData)
+		XCF.Ballistics.CalcFlight( BulletData.Index, BulletData )
+	else
+		ACF.Bullet[ACF.CurBulletIndex] = table.Copy(BData)		--Place the bullet at the current index pos
+		ACF_BulletClient( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex], "Init" , 0 )
+		ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
+	end
+	
 	
 end
 

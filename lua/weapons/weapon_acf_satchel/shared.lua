@@ -3,13 +3,13 @@
 
 if (CLIENT) then
 	
-	SWEP.PrintName			= "ACF Landmine"
+	SWEP.PrintName			= "ACF Satchel Charge"
 	SWEP.Author				= "Bubbus"
 	SWEP.Slot				= 4
 	SWEP.SlotPos			= 3
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
-	SWEP.Purpose		= "Make dudes disappear 10 years in the future."
+	SWEP.Purpose		= "Make dudes disappear in interesting ways."
 	SWEP.Instructions       = "Reload at Bomb Ammo-boxes!"
 
 end
@@ -23,9 +23,9 @@ SWEP.ViewModelFOV               = 65
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_c4.mdl"
-SWEP.WorldModel 		= "models/weapons/w_c4.mdl"
-SWEP.ThrowModel 		= "models/dav0r/buttons/button.mdl"
+SWEP.ViewModel 			= "models/weapons/v_slam.mdl"
+SWEP.WorldModel 		= "models/weapons/w_slam.mdl"
+SWEP.ThrowModel 		= "models/weapons/w_slam.mdl"
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
@@ -34,13 +34,13 @@ SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Recoil			= 5
 SWEP.Primary.ClipSize		= -1
-SWEP.Primary.Delay			= 6
+SWEP.Primary.Delay			= 4.5
 SWEP.Primary.DefaultClip	= 5
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "Grenade"
 SWEP.Primary.Sound 			= "Weapon_Grenade.Fire"
 
-SWEP.ReloadTime				= 6
+SWEP.ReloadTime				= 4.5
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -81,18 +81,18 @@ function SWEP:InitBulletData()
 	self.BulletData = {}
 	self.BulletData["Colour"]		= Color(255, 255, 255)
 	self.BulletData["Data10"]		= "0.00"
-	self.BulletData["Data5"]		= "1700.00"
+	self.BulletData["Data5"]		= "1400.00"
 	self.BulletData["Data6"]		= "30.000000"
 	self.BulletData["Data7"]		= "0"
 	self.BulletData["Data8"]		= "0"
 	self.BulletData["Data9"]		= "0"
-	self.BulletData["Id"]			= "75mmHW"
-	self.BulletData["ProjLength"]	= "41.09"
-	self.BulletData["PropLength"]	= "0.01"
-	self.BulletData["Type"]			= "HE"
-
+	self.BulletData["Id"]		= "75mmHW"
+	self.BulletData["ProjLength"]		= "41.09"
+	self.BulletData["PropLength"]		= "0.01"
+	self.BulletData["Type"]		= "HE"
+	
 	self.BulletData.IsShortForm = true
-
+	
 end
 
 
@@ -102,13 +102,34 @@ function SWEP:PrimaryAttack()
 	if self:CanPrimaryAttack() then
 		self.PressedTime = CurTime()
 		if SERVER then
-			self.Weapon:SendWeaponAnim(ACT_VM_PULLPIN)
+			self.Owner.ACFSatchels = self.Owner.ACFSatchels or {}
+			--self.Weapon:SendWeaponAnim(ACT_VM_PULLPIN)
 		end
+		
 	end
 	
 	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 end
 //*/
+
+
+
+function SWEP:SecondaryAttack()
+
+	if self:GetNextSecondaryFire() < CurTime() then
+		
+		if SERVER then
+			timer.Simple(0.25, function() self:DetonateSatchels() end)
+		else
+			self:EmitSound("buttons/button24.wav", 50, 100)
+			--self.Weapon:SendWeaponAnim(ACT_SLAM_DETONATOR_DETONATE)
+		end
+		
+	end
+	
+	self.Weapon:SetNextSecondaryFire(CurTime() + 0.25)
+end
+
 
 
 
@@ -135,6 +156,6 @@ end
 
 
 function SWEP:ShootEffects()
-	self:SendWeaponAnim( ACT_VM_THROW )		// View model animation
+	--self:SendWeaponAnim( ACT_SLAM_THROW_THROW )		// View model animation
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )	// 3rd Person Animation
 end

@@ -46,6 +46,7 @@ SWEP.Secondary.Ammo			= "none"
 
 SWEP.AimOffset = Vector(32, 8, -1)
 
+SWEP.IronSights = true
 SWEP.IronSightsPos = Vector(-2, -5.2, 2.19)
 SWEP.ZoomPos = Vector(2,-2,2)
 SWEP.IronSightsAng = Angle(0.2, 0.74, 0)
