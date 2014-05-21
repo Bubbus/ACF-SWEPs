@@ -66,7 +66,7 @@ function ACF_CustomBulletLaunch(BData)
 	BData.Filter = BData.Filter or { BData["Gun"] }
 	BData.Index = ACF.CurBulletIndex
 		
-	if XCF then
+	if XCF and XCF.Ballistics then
 		local BulletData = XCF.Ballistics.Launch(BData)
 		XCF.Ballistics.CalcFlight( BulletData.Index, BulletData )
 	else
