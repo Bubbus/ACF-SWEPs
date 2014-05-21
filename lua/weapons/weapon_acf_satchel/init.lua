@@ -123,7 +123,15 @@ function SWEP:FireBullet()
 	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 1) * 1.5
 	self.BulletData["Flight"] = flight * throwmod
 	
-	local bomb = MakeACF_Grenade(self.Owner, MuzzlePos2, Angle(0,0,0), self.BulletData, self.ThrowModel)
+	//local bomb = MakeACF_Grenade(self.Owner, MuzzlePos2, Angle(0,0,0), self.BulletData, self.ThrowModel)
+	
+	local bomb = ents.Create("acf_grenade")
+	bomb:SetPos(MuzzlePos2)
+	bomb:SetOwner(self.Owner)
+	bomb:Spawn()
+	bomb:SetModelEasy(self.ThrowModel)
+	bomb:SetBulletData(self.BulletData)
+	
 	local expfunc = self.grenadeExplode
 	bomb.grenadeExplode = expfunc
 	timer.Simple(600, function() expfunc(bomb) end)

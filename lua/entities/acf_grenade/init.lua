@@ -73,12 +73,19 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 	Bomb:SetPos(Pos)
 	Bomb:Spawn()
 	Bomb:SetPlayer(Owner)
+	Bomb:SetOwner(Owner)
 	Bomb.Owner = Owner
 	
+	--print(tostring(Id), tostring(Data1))
+	
+	/*
 	if type(Id) == "table" and type(Data1) == "string" then
 		Mdl = Data1
 		local bdata = Id
 		Id = bdata.Id
+		
+		pbn(bdata)
+		
 		Data1 = bdata.Data1 or bdata.Id
 		Data2 = bdata.Type or bdata.Data2
 		Data3 = bdata.PropLength or bdata.Data3
@@ -90,6 +97,7 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 		Data9 = bdata.Data9
 		Data10 = bdata.Data10
 	end
+	//*/
 	
 	Mdl = Mdl or ACF.Weapons.Guns[Id].model
 	
@@ -238,14 +246,21 @@ function ENT:Detonate()
 	
 	local bdata = self.BulletData
 	local pos = self:GetPos()
+	bdata.Pos = pos
+	
 	local up = self:GetUp()
 	local phys = self:GetPhysicsObject()
 	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
+	bdata.Flight = phyvel
 	
 	--pbn(bdata)
 	
+	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
+	
 	bdata.RoundMass = bdata.RoundMass or bdata.ProjMass
 	bdata.ProjMass = bdata.ProjMass or bdata.RoundMass 
+	
+	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
 	
 	self.Entity:Remove()
 	

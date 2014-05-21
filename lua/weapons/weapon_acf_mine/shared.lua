@@ -78,6 +78,7 @@ SWEP.ChargeTime = 3
 
 function SWEP:InitBulletData()
 	
+	//*
 	self.BulletData = {}
 	self.BulletData["Colour"]		= Color(255, 255, 255)
 	self.BulletData["Data10"]		= "0.00"
@@ -92,6 +93,7 @@ function SWEP:InitBulletData()
 	self.BulletData["Type"]			= "HE"
 
 	self.BulletData.IsShortForm = true
+	//*/
 
 end
 

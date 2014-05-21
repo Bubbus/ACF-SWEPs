@@ -20,6 +20,10 @@ function SWEP:Initialize()
 	end
 	self:InitBulletData()
 	self:UpdateFakeCrate()
+	
+	if SERVER and self.BulletData.IsShortForm then
+		self.BulletData = ACF_ExpandBulletData(self.BulletData)
+	end
 end
 
 
@@ -43,6 +47,8 @@ end
 function SWEP:OnRemove()
 
 	if not IsValid(self.FakeCrate) then return end
+	
+	print("killcrate")
 	
 	local crate = self.FakeCrate
 	timer.Simple(15, function() if IsValid(crate) then crate:Remove() end end)
