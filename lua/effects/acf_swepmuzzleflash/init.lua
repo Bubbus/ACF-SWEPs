@@ -13,10 +13,12 @@
 	local FlashClass = Gun.FlashClass
 	local RoundType = ACF.IdRounds[data:GetSurfaceProp()] or "AP"
 	
+	local PosOverride = data:GetOrigin()
+	
+	--print(PosOverride)
+	
 	local FromAnimationEvent = data:GetMaterialIndex() or 0
-	if FromAnimationEvent == 1 then
-		FromAnimationEvent = true
-	else
+	if FromAnimationEvent < 1 then
 		FromAnimationEvent = false
 	end
 		
@@ -51,16 +53,17 @@
 			end
 			
 			local aimoffset = Gun.AimOffset or Vector()
-			local muzzoffset
-			if not lply then
-				muzzoffset = (Muzzle.Ang:Forward() * aimoffset.x) + (Muzzle.Ang:Right() * aimoffset.y) + (Muzzle.Ang:Up() * aimoffset.z)
-			else
+			--local muzzoffset
+			if FromAnimationEvent == 5003 then
+				Muzzle.Pos = PosOverride
+				--muzzoffset = Vector(0,0,0)
+			elseif FromAnimationEvent == 5001 then
 				local mdl = Gun.Owner:GetViewModel()
 				Muzzle.Pos = mdl:GetAttachment(1).Pos
-				muzzoffset = Vector(0,0,0)
+				--muzzoffset = Vector(0,0,0)
 			end
 			
-			Muzzle.Pos = Muzzle.Pos + muzzoffset
+			--Muzzle.Pos = Muzzle.Pos + muzzoffset
 			
 			local flash = ACF.Classes["GunClass"][FlashClass]["muzzleflash"]
 			

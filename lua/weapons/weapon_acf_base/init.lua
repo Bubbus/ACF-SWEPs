@@ -48,8 +48,6 @@ function SWEP:OnRemove()
 
 	if not IsValid(self.FakeCrate) then return end
 	
-	print("killcrate")
-	
 	local crate = self.FakeCrate
 	timer.Simple(15, function() if IsValid(crate) then crate:Remove() end end)
 
@@ -152,11 +150,13 @@ function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir, realcall )
 	//*
 	if CLIENT or not realcall then return end
 	
+	/*
 	local Effect = EffectData()
 		Effect:SetEntity( self )
 		Effect:SetScale( self.BulletData.PropMass or 1 )
 		Effect:SetMagnitude( self.ReloadTime )
 		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData.Type].netid or 1 )	--Encoding the ammo type into a table index
 	util.Effect( "ACF_SWEPMuzzleFlash", Effect, true, true )
+	//*/
 	//*/
 end

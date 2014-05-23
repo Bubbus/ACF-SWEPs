@@ -212,7 +212,7 @@ function SWEP:PrimaryAttack()
 		self.Owner:SetAnimation( PLAYER_ATTACK1 )
 		
 		if SERVER then
-			self.Weapon:EmitSound( self.Primary.Sound )
+			--self.Weapon:EmitSound( self.Primary.Sound )
 			
 			self:FireBullet()
 		end
@@ -317,8 +317,15 @@ end
 
 
 function SWEP:FireAnimationEvent(pos,ang,event)
-
-	if CLIENT and event == 5001 then
+	
+	local curtime = CurTime()
+	if not self.NextFlash then self.NextFlash = curtime - 0.05 end
+	
+	-- firstperson muzzleflash
+	if ( event == 5001 ) then 
+		if self.NextFlash > curtime then return true end
+		self.NextFlash = curtime + 0.05
+	
 		local Effect = EffectData()
 			Effect:SetEntity( self )
 			--Effect:SetOrigin(pos)
@@ -326,13 +333,32 @@ function SWEP:FireAnimationEvent(pos,ang,event)
 			Effect:SetScale( self.BulletData["PropMass"] or 1 )
 			Effect:SetMagnitude( self.ReloadTime )
 			Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1 )	--Encoding the ammo type into a table index
-			Effect:SetMaterialIndex(1) -- flag for effect from animation event
+			Effect:SetMaterialIndex(5001) -- flag for effect from animation event
 		util.Effect( "ACF_SWEPMuzzleFlash", Effect, true)
-		
+	
+		return true
+	end	
+	
+	-- Disable thirdperson muzzle flash
+	if ( event == 5003 ) then
+		if self.NextFlash > curtime then return true end
+		self.NextFlash = curtime + 0.05
+	
+		local Effect = EffectData()
+			Effect:SetEntity( self )			
+			Effect:SetOrigin(self:GetAttachment(1).Pos)
+			--Effect:SetAngles(ang)
+			Effect:SetScale( self.BulletData["PropMass"] or 1 )
+			Effect:SetMagnitude( self.ReloadTime )
+			Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1 )	--Encoding the ammo type into a table index
+			Effect:SetMaterialIndex(5003) -- flag for effect from animation event
+		util.Effect( "ACF_SWEPMuzzleFlash", Effect, true)
+	
 		return true
 	end
-
-	return (event==5001)
+	
+	--if ( event == 6002 ) then return true end
+	
 end
 
 

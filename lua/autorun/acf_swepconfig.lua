@@ -18,6 +18,8 @@ local AimStyle = "WOT"
 // USe ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
 
+// How fast should stamina drain while sprinting?  This is a scaling number.
+local STAMINA_DRAIN = 0.4
 // How fast should stamina recover after sprinting?  This is a scaling number.
 local STAMINA_RECOVER = 0.09
 
@@ -25,9 +27,13 @@ local STAMINA_RECOVER = 0.09
 local VEL_SCALE = 60
 
 
+// In WOT mode, what the inaccuracy shrinking is multiplied by.  This balances Shooter with WOT.
+local WOT_ACC_SCALE = 1.2
+// In WOT mode, what the inaccuracy growth caused my moving your aim is multiplied by.
+local WOT_INACC_AIM = 1
+
 // In shooter mode, what the minimum inaccuracy is multiplied by.  This balances Shooter with WOT.
 local SHOOTER_INACC_MUL = 2
-
 // In shooter mode, how fast should the reticule grow/shrink?
 local SHOOTER_LERP_MUL = 2
 
@@ -88,13 +94,13 @@ function aim.WOT(self)
 		local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff * VEL_SCALE	// max vel possible is 3500
 		local aim = self.Owner:GetAimVector()
 		
-		local difflimit = self.InaccuracyAimLimit - self.Inaccuracy
+		local difflimit = self.InaccuracyAimLimit * WOT_INACC_AIM - self.Inaccuracy
 		difflimit = difflimit < 0 and 0 or difflimit
 		
 		local diffaim = math.min(aim:Distance(self.LastAim) * 30, difflimit)
 		
 		local crouching = self.Owner:Crouching()
-		local decay = self.InaccuracyDecay
+		local decay = self.InaccuracyDecay * WOT_ACC_SCALE
 		local penalty = 0
 		
 		//print(self.Owner:KeyDown(IN_SPEED), self.Owner:KeyDown(IN_RUN))
@@ -103,7 +109,7 @@ function aim.WOT(self)
 		self.MaxStamina = math.Clamp(healthFract, 0.5, 1)
 		
 		if self.Owner:KeyDown(IN_SPEED) then
-			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain, 0, 1)
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain * STAMINA_DRAIN, 0, 1)
 		else
 			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER) * timediff
 			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
@@ -195,7 +201,7 @@ function aim.Shooter(self)
 		self.MaxStamina = math.Clamp(healthFract, 0.25, 1)
 		
 		if self.Owner:KeyDown(IN_SPEED) then
-			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain, 0, 1)
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain * STAMINA_DRAIN, 0, 1)
 		else
 			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER) * timediff
 			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
