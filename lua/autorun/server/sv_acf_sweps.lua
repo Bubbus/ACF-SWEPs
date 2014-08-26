@@ -13,6 +13,13 @@
 
 AddCSLuaFile("autorun/client/drawarc.lua")
 
+if not ACF then error("ACF is not installed - ACF SWEPs require it!") end
+
+ACF.SWEP = ACF.SWEP or {}
+
+ACF.SWEP.PlyBullets = ACF.SWEP.PlyBullets or {}
+local bullets = ACF.SWEP.PlyBullets
+
 
 
 function ACF_CreateBulletSWEP( BulletData, Swep, LagComp )
@@ -22,21 +29,80 @@ function ACF_CreateBulletSWEP( BulletData, Swep, LagComp )
 	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or Ply or error("Tried to create swep round with unowned swep!")
 
 	BulletData = table.Copy(BulletData)
-	BulletData.TraceBackComp = owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
+	
+	if LagComp then
+		BulletData.LastThink = SysTime()
+		
+		BulletData.Owner = owner
+		BulletData.HandlesOwnIteration = true
+		BulletData.OnRemoved = ACF_SWEP_OnRemoved
+	end
+	
+	BulletData.TraceBackComp = 0
+	--BulletData.TraceBackComp = owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
 	BulletData.Gun = Swep
 	
 	BulletData.Filter = BulletData.Filter or {}
 	BulletData.Filter[#BulletData.Filter + 1] = Swep
 	BulletData.Filter[#BulletData.Filter + 1] = owner
 	
-	if LagComp then
-		BulletData.LastThink = SysTime() - owner:Ping() / 1000
-	end
-	
 	ACF_CustomBulletLaunch(BulletData)
 	
 	return BulletData
 	
+end
+
+
+
+
+function ACF_SWEP_PlayerTickSimulate(ply, move)
+	
+	local plyBullets = bullets[ply]
+	if not plyBullets or #plyBullets < 1 then return end
+	
+	local CalcFlight = (XCF and XCF.Ballistics and XCF.Ballistics.CalcFlight) or ACF_CalcBulletFlight or error("Could not find ACF flight calc function.")
+	
+	ply:LagCompensation(true)
+	
+	for k, bullet in pairs(plyBullets) do
+		--print("sim bullet ", k)
+		CalcFlight( bullet.Index, bullet )
+	end
+	
+	ply:LagCompensation(false)
+	
+end
+hook.Add("PlayerTick", "ACF_SWEP_PlayerTickSimulate", ACF_SWEP_PlayerTickSimulate)
+
+
+
+
+function ACF_SWEP_PlayerDisconnected(ply)
+	print("plyDisconn", ply)
+	if not IsValid(ply) then return end
+
+	local plyBullets = bullets[ply]
+	if not plyBullets then return end
+	
+	local RemoveBullet = (XCF and XCF.Ballistics and XCF.Ballistics.RemoveProj) or ACF_RemoveBullet or error("Could not find ACF bullet removal function.")
+	
+	for k, bullet in pairs(plyBullets) do
+		if not bullet.Index then continue end
+		RemoveBullet(bullet.Index)
+	end
+	
+	bullets[ply] = nil
+end
+hook.Add( "PlayerDisconnected", "ACF_SWEP_PlayerDisconnected", ACF_SWEP_PlayerDisconnected)
+
+
+
+
+function ACF_SWEP_OnRemoved(bullet)
+	--print("rem", bullet)
+	if bullet.OwnerIndex then
+		bullets[bullet.Owner][bullet.OwnerIndex] = nil
+	end
 end
 
 
@@ -53,7 +119,8 @@ function ACF_CustomBulletLaunch(BData)
 	BData.Accel = Vector(0,0,cvarGrav:GetInt()*-1)			--Those are BData settings that are global and shouldn't change round to round
 	BData.LastThink = BData.LastThink or SysTime()
 	BData["FlightTime"] = 0
-	BData["TraceBackComp"] = 0
+	--BData["TraceBackComp"] = 0
+	local Owner = BData.Owner
 	
 	if BData["FuseLength"] then
 		BData["InitTime"] = SysTime()
@@ -64,17 +131,24 @@ function ACF_CustomBulletLaunch(BData)
 	end
 	
 	BData.Filter = BData.Filter or { BData["Gun"] }
-	BData.Index = ACF.CurBulletIndex
 		
 	if XCF and XCF.Ballistics then
-		local BulletData = XCF.Ballistics.Launch(BData)
-		XCF.Ballistics.CalcFlight( BulletData.Index, BulletData )
+		BData = XCF.Ballistics.Launch(BData)
+		--XCF.Ballistics.CalcFlight( BulletData.Index, BulletData )
 	else
-		ACF.Bullet[ACF.CurBulletIndex] = table.Copy(BData)		--Place the bullet at the current index pos
+		BData.Index = ACF.CurBulletIndex
+		ACF.Bullet[ACF.CurBulletIndex] = BData		--Place the bullet at the current index pos
 		ACF_BulletClient( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex], "Init" , 0 )
-		ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
+		--ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
 	end
 	
+	if BData.HandlesOwnIteration then
+		bullets[BData.Owner] = bullets[BData.Owner] or {}
+		local btbl = bullets[BData.Owner]
+		local btblIdx = #btbl+1
+		BData.OwnerIndex = btblIdx
+		btbl[btblIdx] = BData
+	end
 	
 end
 

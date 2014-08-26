@@ -114,7 +114,7 @@ function SWEP:InitBulletData()
 	
 	
 	if SERVER then
-		self.BulletData.CallbackEndFlight = self.CallbackEndFlight
+		self.BulletData.OnEndFlight = self.CallbackEndFlight
 	end
 	
 end

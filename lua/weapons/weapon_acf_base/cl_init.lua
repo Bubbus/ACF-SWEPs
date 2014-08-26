@@ -84,6 +84,7 @@ function SWEP:ZoomThink()
 		if zoomed then
 			self.fromPos = self.curPos or Vector(0,0,0)
 			self.toPos = ACF.SWEP.IronSights and (self.IronSightsPos or Vector(0,0,0)) or (self.ZoomPos or Vector(2, 2, 2))
+			if ACF.SWEP.HalveSightPos then self.toPos = self.toPos / 2 end
 			
 			self.fromAng = self.curAng or Angle(0,0,0)
 			self.toAng = self.IronSightsAng or Angle(0,0,0)

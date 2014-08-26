@@ -24,5 +24,5 @@ function SWEP.CallbackEndFlight(index, bullet, trace)
 		Effect:SetOrigin(pos - trace.Normal)
 		Effect:SetNormal(dir)
 		Effect:SetRadius(bullet.ProjMass * (bullet.Flight:Length() / 39.37) ^ 2)
-	util.Effect( "xcf_sniperimpact", Effect, true, true)
+	util.Effect( "acf_sniperimpact", Effect, true, true)
 end

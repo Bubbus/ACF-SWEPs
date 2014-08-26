@@ -15,8 +15,12 @@
 // What accuracy scheme to use?  Choose from WOT, Shooter
 local AimStyle = "WOT"
 
-// USe ironsights when aiming, or just hug the weapon closer?
+// Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
+
+// Use lag compensation on bullets?
+local LagCompensation = true
+
 
 // How fast should stamina drain while sprinting?  This is a scaling number.
 local STAMINA_DRAIN = 0.4
@@ -51,6 +55,7 @@ ACF = ACF or {}
 ACF.SWEP = ACF.SWEP or {}
 ACF.SWEP.Aim = ACF.SWEP.Aim or {}
 ACF.SWEP.IronSights = IronSights
+ACF.SWEP.LagComp = LagCompensation
 
 local swep = ACF.SWEP
 local aim = ACF.SWEP.Aim

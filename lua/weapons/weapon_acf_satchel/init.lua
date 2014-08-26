@@ -49,7 +49,8 @@ function SWEP.grenadeTraceHit(bomb, trace)
 	local hitent = trace.Entity
 	
 	if 	not IsValid(parent) and not trace.HitWorld and IsValid(hitent) and not (hitent == parent)
-		and not (hitent:GetClass() == "acf_grenade") and not (hitent == bomb:GetOwner()) then
+		and not (hitent:GetClass() == "acf_grenade") and not (hitent == bomb:GetOwner()) 
+		and not hitent:IsPlayer() and not hitent:IsNPC() then
 		
 		local setpos = trace.HitPos - trace.HitNormal * 1
 		
@@ -119,7 +120,7 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	--self.BulletData.ProjClass = XCF.ProjClasses.Bomb or error("Could not find the Bomb projectile type!")
 	
-	local flight = MuzzleVecFinal * (self.BulletData["MuzzleVel"] or 10) * 39.37 + self.Owner:GetVelocity()
+	local flight = MuzzleVecFinal * 3 * 39.37 + self.Owner:GetVelocity()
 	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 1) * 1.5
 	self.BulletData["Flight"] = flight * throwmod
 	
