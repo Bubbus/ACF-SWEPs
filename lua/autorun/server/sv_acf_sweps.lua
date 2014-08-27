@@ -72,7 +72,9 @@ function ACF_SWEP_PlayerTickSimulate(ply, move)
 	ply:LagCompensation(false)
 	
 end
-hook.Add("PlayerTick", "ACF_SWEP_PlayerTickSimulate", ACF_SWEP_PlayerTickSimulate)
+
+if ACF.Version and ACF.Version < 506 then ErrorNoHalt("ACF SWEPs need ACF v506 or greater to use lag compensation!  Please update ACF!")
+else hook.Add("PlayerTick", "ACF_SWEP_PlayerTickSimulate", ACF_SWEP_PlayerTickSimulate) end
 
 
 
