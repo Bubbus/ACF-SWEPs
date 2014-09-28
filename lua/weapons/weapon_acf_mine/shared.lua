@@ -70,9 +70,11 @@ SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
 
+SWEP.IsGrenadeWeapon	= true
 SWEP.GrenadeRemove		= true
 SWEP.HasChargeTimer		= true
-SWEP.ChargeTime = 3
+SWEP.ChargeTime = 1
+SWEP.ThrowVel	= 5
 
 
 

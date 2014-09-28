@@ -125,8 +125,8 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	--self.BulletData.ProjClass = XCF.ProjClasses.Bomb or error("Could not find the Bomb projectile type!")
 	
-	local flight = MuzzleVecFinal * (self.BulletData["MuzzleVel"] or 5) * 39.37 + self.Owner:GetVelocity()
-	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 0.66) * 1
+	local flight = MuzzleVecFinal * self.ThrowVel * 39.37 + self.Owner:GetVelocity()
+	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 1) * 1.5
 	self.BulletData["Flight"] = flight * throwmod
 	
 	--[[
@@ -167,6 +167,8 @@ function SWEP:FireBullet()
 	
 	local owner = self.Owner
 	timer.Simple(self.Primary.Delay or 3, function()
+			if !(self and self.Primary and IsValid(owner) and owner:Alive()) then return end
+			
 			local wep = owner:GetActiveWeapon()
 			wep:SendWeaponAnim(ACT_VM_DRAW)
 			if owner:GetAmmoCount( self.Primary.Ammo ) <= 0 and wep.GrenadeRemove then

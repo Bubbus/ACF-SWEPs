@@ -21,7 +21,8 @@ function SWEP:Initialize()
 	self:InitBulletData()
 	self:UpdateFakeCrate()
 	
-	if SERVER and self.BulletData.IsShortForm then
+	if SERVER and self.BulletData.IsShortForm and not self.IsGrenadeWeapon then
+		//print("expand dong")
 		self.BulletData = ACF_ExpandBulletData(self.BulletData)
 	end
 end
@@ -63,14 +64,14 @@ function SWEP:DoAmmoStatDisplay()
 	local bdata = self.BulletData
 
 	if bdata.IsShortForm then
-		bdata = ACF_ExpandBulletData(bdata)
+		bdata = ACF_ExpandBulletData(table.Copy(bdata))
 	end
 
 	local bType = bdata.Type
 	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
 									tostring(bdata.Caliber * 10),
 									bType,
-									bdata.MuzzleVel
+									self.ThrowVel or bdata.MuzzleVel
 								  )
 	
 	if not nopen[bType] then

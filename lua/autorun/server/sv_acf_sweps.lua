@@ -80,7 +80,7 @@ else hook.Add("PlayerTick", "ACF_SWEP_PlayerTickSimulate", ACF_SWEP_PlayerTickSi
 
 
 function ACF_SWEP_PlayerDisconnected(ply)
-	print("plyDisconn", ply)
+	//print("plyDisconn", ply)
 	if not IsValid(ply) then return end
 
 	local plyBullets = bullets[ply]
@@ -158,6 +158,9 @@ end
 
 
 function ACF_ExpandBulletData(bullet)
+
+	//print("expand bomb")
+	//print(debug.traceback())
 
 	/*
 	print("\n\nBEFORE EXPAND:\n")

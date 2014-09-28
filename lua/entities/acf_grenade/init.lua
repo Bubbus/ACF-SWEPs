@@ -53,9 +53,9 @@ end
 
 
 
-function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+function MakeACF_Grenade(Owner, Pos, Angle, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 
-	--print(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+	//print(Owner, Pos, Angle, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 
 	if not Owner:CheckLimit("_acf_grenade") then return false end
 	
@@ -102,7 +102,7 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 	Mdl = Mdl or ACF.Weapons.Guns[Id].model
 	
 	Bomb.Id = Id
-	Bomb:CreateBomb(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+	Bomb:CreateBomb(Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 	
 	Owner:AddCount( "_acf_grenade", Bomb )
 	Owner:AddCleanup( "acfmenu", Bomb )
@@ -110,18 +110,18 @@ function MakeACF_Grenade(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data
 	return Bomb
 end
 list.Set( "ACFCvars", "acf_grenade", {"id", "data1", "data2", "data3", "data4", "data5", "data6", "data7", "data8", "data9", "data10", "mdl"} )
-duplicator.RegisterEntityClass("acf_grenade", MakeACF_Grenade, "Pos", "Angle", "Id", "RoundId", "RoundType", "RoundPropellant", "RoundProjectile", "RoundData5", "RoundData6", "RoundData7", "RoundData8", "RoundData9", "RoundData10", "Model" )
+duplicator.RegisterEntityClass("acf_grenade", MakeACF_Grenade, "Pos", "Angle", "RoundId", "RoundType", "RoundPropellant", "RoundProjectile", "RoundData5", "RoundData6", "RoundData7", "RoundData8", "RoundData9", "RoundData10", "Model" )
 
 
 
 
-function ENT:CreateBomb(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+function ENT:CreateBomb(Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl, bdata)
 
 	self:SetModelEasy(Mdl)
-	--print(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+	//print("CreateBomb", Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 	--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
-	self.RoundId = Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
-	self.RoundType = Data2		--Type of round, IE AP, HE, HEAT ...
+	self.RoundId 	= Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
+	self.RoundType 	= Data2		--Type of round, IE AP, HE, HEAT ...
 	self.RoundPropellant = Data3--Lenght of propellant
 	self.RoundProjectile = Data4--Lenght of the projectile
 	self.RoundData5 = ( Data5 or 0 )
@@ -131,25 +131,28 @@ function ENT:CreateBomb(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	self.RoundData9 = ( Data9 or 0 )
 	self.RoundData10 = ( Data10 or 0 )
 	
-	local PlayerData = {}
-		PlayerData.Id = self.RoundId
-		PlayerData.Type = self.RoundType
-		PlayerData.PropLength = self.RoundPropellant
-		PlayerData.ProjLength = self.RoundProjectile
-		PlayerData.Data5 = self.RoundData5
-		PlayerData.Data6 = self.RoundData6
-		PlayerData.Data7 = self.RoundData7
-		PlayerData.Data8 = self.RoundData8
-		PlayerData.Data9 = self.RoundData9
-		PlayerData.Data10 = self.RoundData10
+	local PlayerData = bdata or 
+	{
+		Id 		= self.RoundId,
+		Type 	= self.RoundType,
+		PropLength = self.RoundPropellant,
+		ProjLength = self.RoundProjectile,
+		Data5 	= self.RoundData5,
+		Data6 	= self.RoundData6,
+		Data7 	= self.RoundData7,
+		Data8 	= self.RoundData8,
+		Data9 	= self.RoundData9,
+		Data10 	= self.RoundData10
+	}
 	
+	//pbn(PlayerData)
 	
 	local guntable = ACF.Weapons.Guns
 	local gun = guntable[self.RoundId] or {}
 	--local roundclass = XCF.ProjClasses[gun.roundclass or "Bomb"] or error("Unrecognized projectile class " .. (gun.roundclass or "Bomb") .. "!")
 	--print("omg jc a bomb!", roundclass)
-	--PrintTable(PlayerData)
-	self:SetBulletData(ACF_ExpandBulletData(PlayerData))
+	//PrintTable(PlayerData)
+	self:ConfigBulletDataShortForm(PlayerData)
 	
 end
 
@@ -157,9 +160,16 @@ end
 
 
 function ENT:SetModelEasy(mdl)
+	local curMdl = self:GetModel()
+	
+	if not mdl or curMdl == mdl or not Model(mdl) then
+		self.Model = self:GetModel()
+		return 
+	end
+	
 	mdl = Model(mdl)
-	if not mdl then return end
-	self:SetModel( Model(mdl) )
+	
+	self:SetModel( mdl )
 	self.Model = mdl
 	
 	self:PhysicsInit( SOLID_VPHYSICS )      	
@@ -179,19 +189,35 @@ end
 
 function ENT:SetBulletData(bdata)
 
-	--[[
-	if bdata.IsShortForm or bdata.Data1 then
-		self:CreateBomb(
-			bdata.Id,
-			bdata.Data1 or bdata.Id,
-			bdata.Type or bdata.Data2,
-			bdata.PropLength or bdata.Data3,
-			bdata.ProjLength or bdata.Data4,
-			bdata.Data5, bdata.Data6, bdata.Data7, bdata.Data8, bdata.Data9, bdata.Data10, nil)
-	end
-	]]--
+	if not (bdata.IsShortForm or bdata.Data5) then error("acf_grenade requires short-form bullet-data but was given expanded bullet-data.") print(bdata) end
+	
+	self:CreateBomb(
+		bdata.Data1 or bdata.Id,
+		bdata.Type or bdata.Data2,
+		bdata.PropLength or bdata.Data3,
+		bdata.ProjLength or bdata.Data4,
+		bdata.Data5, 
+		bdata.Data6, 
+		bdata.Data7, 
+		bdata.Data8, 
+		bdata.Data9, 
+		bdata.Data10, 
+		nil,
+		bdata)
 
-	self.BulletData = table.Copy(bdata)
+	//print("done")
+	//pbn(bdata)
+	
+	self:ConfigBulletDataShortForm(bdata)
+end
+
+
+
+
+function ENT:ConfigBulletDataShortForm(bdata)
+	bdata = ACF_ExpandBulletData(bdata)
+	
+	self.BulletData = bdata
 	self.BulletData.Entity = self
 	self.BulletData.Crate = self
 	
@@ -253,7 +279,7 @@ function ENT:Detonate()
 	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
 	bdata.Flight = phyvel
 	
-	--pbn(bdata)
+	//pbn(bdata)
 	
 	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
 	

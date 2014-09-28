@@ -12,8 +12,8 @@
 
 
 
-// What accuracy scheme to use?  Choose from WOT, Shooter
-local AimStyle = "WOT"
+// What accuracy scheme to use?  Choose from WOT, Shooter, Static
+local AimStyle = "Static"
 
 // Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
@@ -40,6 +40,9 @@ local WOT_INACC_AIM = 1
 local SHOOTER_INACC_MUL = 2
 // In shooter mode, how fast should the reticule grow/shrink?
 local SHOOTER_LERP_MUL = 2
+
+// In static mode, what fraction of total spread is added to the minimum spread.  It's pretty much impossible to balance Static with WOT.
+local STATIC_INACC_MUL = 0.15
 
 
 
@@ -216,6 +219,61 @@ function aim.Shooter(self)
 		local rawinaccuracy = self.MinInaccuracy * SHOOTER_INACC_MUL + math.max(inacc + self.AddInacc, accuracycap) * inaccuracydiff
 		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, self.InaccuracyDecay * SHOOTER_LERP_MUL, self.AccuracyDecay * SHOOTER_LERP_MUL)
 		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
+		
+		//print("inacc", self.Inaccuracy)
+		
+		self.LastAim = aim
+		XCFDBG_ThinkTime = timediff
+		self.LastThink = CurTime()
+		self.WasJumping = jumping
+	
+		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
+	end
+	
+end
+
+
+
+
+function aim.Static(self)
+
+	self.AddInacc = self.AddInacc or 0
+	self.WasJumping = self.WasJumping or true
+
+	local timediff = CurTime() - self.LastThink
+	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
+	//print(self.Owner:GetVelocity():Length())
+	
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+		self.Inaccuracy = self.MaxInaccuracy
+		self.Owner.XCFStamina = 0
+	end
+	
+	if isReloading then
+		self.Inaccuracy = self.MaxInaccuracy
+	else
+	
+		local inaccuracydiff = self.MaxInaccuracy - self.MinInaccuracy		
+		
+		local inacc = STATIC_INACC_MUL
+		
+		local zoomed = self:GetNetworkedBool("Zoomed")
+		if zoomed then inacc = inacc * (self.HasScope and 0.05 or 0.5) end
+		
+		local healthFract = self.Owner:Health() / 100
+		self.MaxStamina = math.Clamp(healthFract, 0.25, 1)
+		
+		if self.Owner:KeyDown(IN_SPEED) then
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain * STAMINA_DRAIN, 0, 1)
+		else
+			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER) * timediff
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
+		end
+		
+		local accuracycap = (1 - self.Owner.XCFStamina) ^ 2
+		local rawinaccuracy = self.MinInaccuracy + (inacc + accuracycap) * inaccuracydiff
+		//local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, self.InaccuracyDecay * STATIC_LERP_MUL, self.AccuracyDecay * STATIC_LERP_MUL)
+		self.Inaccuracy = math.Clamp(rawinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
 		
 		//print("inacc", self.Inaccuracy)
 		
