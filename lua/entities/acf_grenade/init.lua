@@ -22,6 +22,8 @@ function ENT:Initialize()
 	self.Outputs = Wire_CreateOutputs( self, {} )
 	
 	self.ThinkDelay = 0.1
+	
+	self.TraceFilter = {self}
 	--self.ACF_HEIgnore = true
 	
 end
@@ -234,11 +236,12 @@ end
 
 
 local trace = {}
+
 function ENT:TraceFunction()
 	local pos = self:GetPos()
 	trace.start = pos
 	trace.endpos = pos + self:GetVelocity() * self.ThinkDelay
-	trace.filter = self
+	trace.filter = self.TraceFilter
 
 	local res = util.TraceEntity( trace, self ) 
 	if res.Hit then
