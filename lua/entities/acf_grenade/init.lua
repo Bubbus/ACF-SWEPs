@@ -222,6 +222,7 @@ function ENT:ConfigBulletDataShortForm(bdata)
 	self.BulletData = bdata
 	self.BulletData.Entity = self
 	self.BulletData.Crate = self
+	self.BulletData.Owner = self.Owner
 	
 	local col = self.BulletData.Colour or Color(255, 255, 255)
 	self:SetNetworkedVector( "TracerColour",  Vector(col.r, col.g, col.b))
@@ -281,6 +282,7 @@ function ENT:Detonate()
 	local phys = self:GetPhysicsObject()
 	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
 	bdata.Flight = phyvel
+	bdata.Owner = self.Owner
 	
 	//pbn(bdata)
 	
