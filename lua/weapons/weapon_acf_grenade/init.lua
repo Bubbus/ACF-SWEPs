@@ -90,6 +90,7 @@ function SWEP:FireBullet()
 	
 	bomb:SetShouldTrace(true)
 	bomb.TraceFilter[#bomb.TraceFilter + 1] = self.Owner
+	bomb.TraceFilter[#bomb.TraceFilter + 1] = self.Owner:GetVehicle()
 	bomb.OnTraceContact = self.grenadeTraceHit
 	
 	constraint.NoCollide(bomb, self.Owner)

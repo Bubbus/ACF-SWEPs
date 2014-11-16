@@ -42,7 +42,7 @@ local SHOOTER_INACC_MUL = 2
 local SHOOTER_LERP_MUL = 2
 
 // In static mode, what fraction of total spread is added to the minimum spread.  It's pretty much impossible to balance Static with WOT.
-local STATIC_INACC_MUL = 0.15
+local STATIC_INACC_MUL = 0.05
 
 
 
@@ -87,7 +87,7 @@ function aim.WOT(self)
 	//print(self.Owner:GetVelocity():Length())
 	self.LastAim = self.LastAim or Vector(1, 0, 0)
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
@@ -162,7 +162,7 @@ function aim.Shooter(self)
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
 	//print(self.Owner:GetVelocity():Length())
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
@@ -244,7 +244,7 @@ function aim.Static(self)
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
 	//print(self.Owner:GetVelocity():Length())
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end

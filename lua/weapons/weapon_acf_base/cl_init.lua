@@ -144,7 +144,11 @@ function SWEP:DrawScope()
 	local scrh = ScrH()
 	local scrh2 = ScrH() / 2
 	
-	local scrpos = self.Owner:GetEyeTrace().HitPos:ToScreen()
+	local traceargs = util.GetPlayerTrace(LocalPlayer())
+	traceargs.filter = {self.Owner, self.Owner:GetVehicle() or nil}
+	local trace = util.TraceLine(traceargs)
+		
+	local scrpos = trace.HitPos:ToScreen()
 	local devx = scrw2 - scrpos.x
 	local devy = scrh2 - scrpos.y
 
@@ -312,7 +316,15 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 
 	local drawcircle = true--not self:DrawScope()
 	
-	local scrpos = drawcircle and self.Owner:GetEyeTrace().HitPos:ToScreen()
+	local scrpos
+	if drawcircle then
+		local traceargs = util.GetPlayerTrace(LocalPlayer())
+		traceargs.filter = {self.Owner, self.Owner:GetVehicle() or nil}
+		local trace = util.TraceLine(traceargs)
+
+		scrpos = trace.HitPos:ToScreen()
+	end
+	
 	local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )
 	local servstam = self.Weapon:GetNetworkedFloat("ServerStam", 0)
 	

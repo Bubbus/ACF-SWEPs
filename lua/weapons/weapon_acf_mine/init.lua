@@ -72,7 +72,7 @@ function SWEP.mineTrace(bomb)
 	local pos = bomb:GetPos()
 	local vel = bomb:GetVelocity()
 	trace.start = pos
-	trace.filter = bomb.Timeout < CurTime() and bomb or {bomb, bomb.Owner}
+	trace.filter = bomb.Timeout < CurTime() and bomb or {bomb, bomb.Owner, bomb.Owner:GetVehicle()}
 	
 	if vel:Length() < 10 then
 		local entup = bomb:GetUp()
