@@ -109,5 +109,5 @@ function SWEP:InitBulletData()
 	self.BulletData["Type"]				=	"AP"
 	self.BulletData["Id"] 				=	"7.62mmMG"
 	self.BulletData["InvalidateTraceback"]			= true
-
+	
 end

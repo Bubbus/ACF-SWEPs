@@ -8,8 +8,8 @@ function EFFECT:Init( data )
 	
 	self.Origin = data:GetOrigin()
 	self.DirVec = data:GetNormal()
-	--self.DirVec = Vector(self.DirVec.x, self.DirVec.y, self.DirVec.z)
-	self.Radius = math.max(data:GetRadius()/200,1)
+
+	self.Radius = math.Clamp(math.sqrt(1 + data:GetRadius() * 5), 2.5, 6)
 	
 	--print("poff", self.Radius)
 	

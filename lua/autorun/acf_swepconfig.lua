@@ -20,12 +20,12 @@ local Reticule = "Circle"
 
 // Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
-
 // Use lag compensation on bullets?
 local LagCompensation = true
-
 // Allow shooting while noclipping
 local NoclipShooting = false
+// Kick up dust on bullet impacts for all guns, or only snipers?  Fun but potentially laggy.
+local AlwaysDust = false
 
 
 // How fast should stamina drain while sprinting?  This is a scaling number.
@@ -66,6 +66,7 @@ ACF.SWEP.Aim 			= ACF.SWEP.Aim or {}
 ACF.SWEP.IronSights 	= IronSights
 ACF.SWEP.LagComp 		= LagCompensation
 ACF.SWEP.NoclipShooting = NoclipShooting
+ACF.SWEP.AlwaysDust		= AlwaysDust
 
 local swep	= ACF.SWEP
 local aim	= ACF.SWEP.Aim

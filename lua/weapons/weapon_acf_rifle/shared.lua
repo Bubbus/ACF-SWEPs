@@ -79,6 +79,7 @@ SWEP.ZoomFOV = 50
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+SWEP.AlwaysDust = true
 
 
 function SWEP:InitBulletData()
@@ -111,10 +112,5 @@ function SWEP:InitBulletData()
 	self.BulletData["ShovePower"]			= 0.2
 	self.BulletData["Tracer"]			= 0
 	self.BulletData["InvalidateTraceback"]			= true
-	
-	
-	if SERVER then
-		self.BulletData.OnEndFlight = self.CallbackEndFlight
-	end
 	
 end

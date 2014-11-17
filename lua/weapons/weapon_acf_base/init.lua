@@ -25,6 +25,10 @@ function SWEP:Initialize()
 		//print("expand dong")
 		self.BulletData = ACF_ExpandBulletData(self.BulletData)
 	end
+	
+	if SERVER then
+		self.BulletData.OnEndFlight = self.CallbackEndFlight
+	end
 end
 
 
@@ -165,4 +169,25 @@ function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir, realcall )
 	util.Effect( "ACF_SWEPMuzzleFlash", Effect, true, true )
 	//*/
 	//*/
+end
+
+
+
+
+function SWEP.CallbackEndFlight(index, bullet, trace)
+	if not (ACF.SWEP.AlwaysDust or (bullet.Gun and bullet.Gun.AlwaysDust)) then return end
+	if not trace.Hit then return end
+	
+	local pos = trace.HitPos
+	local dir = (pos - trace.StartPos):GetNormalized()
+	
+	local Effect = EffectData()
+		if bullet.Gun then
+			Effect:SetEntity(bullet.Gun)
+		end
+		
+		Effect:SetOrigin(pos - trace.Normal)
+		Effect:SetNormal(dir)
+		Effect:SetRadius((bullet.ProjMass * (bullet.Flight:Length() / 39.37)) / 10) // ditched realism for more readability at range
+	util.Effect( "acf_sniperimpact", Effect, true, true)
 end

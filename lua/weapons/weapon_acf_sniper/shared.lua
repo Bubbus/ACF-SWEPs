@@ -73,6 +73,7 @@ SWEP.StaminaJumpDrain = 0.1
 SWEP.Class = "HMG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+SWEP.AlwaysDust = true
 
 
 function SWEP:InitBulletData()
@@ -105,8 +106,4 @@ function SWEP:InitBulletData()
 	self.BulletData["Id"] 				=	"20mmAC"
 	self.BulletData["InvalidateTraceback"]			= true
 
-	
-	if SERVER then
-		self.BulletData.OnEndFlight = self.CallbackEndFlight
-	end
 end

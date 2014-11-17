@@ -277,7 +277,7 @@ function SWEP:Reload()
 		if SERVER then
 			self.Weapon:SetNetworkedBool( "reloading", true )
 			//self.Weapon:SetVar( "reloadtimer", CurTime() + self.ReloadTime )
-			timer.Simple(self.ReloadTime, function() self.Weapon:SetNetworkedBool( "reloading", false ) end)
+			timer.Simple(self.ReloadTime, function() if IsValid(self) then self.Weapon:SetNetworkedBool( "reloading", false ) end end)
 			self.Weapon:SetNextPrimaryFire(CurTime() + self.ReloadTime)
 			self.Owner:DoReloadEvent()
 		end
