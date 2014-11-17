@@ -239,7 +239,7 @@ end
 
 
 function SWEP:VisRecoil()
-	if CLIENT then
+	if SERVER then
 		local rnda = self.Primary.Recoil * -1 
 		local rndb = self.Primary.Recoil * math.random(-1, 1) 
 		
