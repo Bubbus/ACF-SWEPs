@@ -151,7 +151,7 @@ function SWEP:ThinkBefore()
 		
 		self.PressedDuration = nil
 		self:VisRecoil()
-		self.Inaccuracy = math.Clamp(self.Inaccuracy + self.InaccuracyPerShot, self.MinInaccuracy, self.MaxInaccuracy)
+		self:AddInaccuracy(self.InaccuracyPerShot)
 	end
 	
 end

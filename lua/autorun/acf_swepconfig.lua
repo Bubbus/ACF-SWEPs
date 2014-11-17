@@ -13,13 +13,16 @@
 
 
 // What accuracy scheme to use?  Choose from WOT, Shooter, Static
-local AimStyle = "Static"
+local AimStyle = "Shooter"
 
 // Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
 
 // Use lag compensation on bullets?
 local LagCompensation = true
+
+// Allow shooting while noclipping
+local NoclipShooting = false
 
 
 // How fast should stamina drain while sprinting?  This is a scaling number.
@@ -54,14 +57,15 @@ local STATIC_INACC_MUL = 0.05
 
 
 
-ACF = ACF or {}
-ACF.SWEP = ACF.SWEP or {}
-ACF.SWEP.Aim = ACF.SWEP.Aim or {}
-ACF.SWEP.IronSights = IronSights
-ACF.SWEP.LagComp = LagCompensation
+ACF 					= ACF or {}
+ACF.SWEP 				= ACF.SWEP or {}
+ACF.SWEP.Aim 			= ACF.SWEP.Aim or {}
+ACF.SWEP.IronSights 	= IronSights
+ACF.SWEP.LagComp 		= LagCompensation
+ACF.SWEP.NoclipShooting = NoclipShooting
 
-local swep = ACF.SWEP
-local aim = ACF.SWEP.Aim
+local swep	= ACF.SWEP
+local aim	= ACF.SWEP.Aim
 
 
 
@@ -80,7 +84,26 @@ end
 
 
 
-function aim.WOT(self)
+function swep.SetInaccuracy(self, val)
+	ACF.SWEP.AddInaccuracy(self, val - self.Inaccuracy)
+end
+
+function swep.AddInaccuracy(self, add)
+	aim[AimStyle].AddInaccuracy(self, add)
+	self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
+end
+
+
+function swep.Think(self)
+	return aim[AimStyle].Think(self)
+end
+
+
+
+
+aim.WOT = {}
+local WOT = aim.WOT
+function WOT.Think(self)
 
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
@@ -151,9 +174,15 @@ function aim.WOT(self)
 end
 
 
+function WOT.AddInaccuracy(self, add)
+	self.Inaccuracy = math.Clamp(self.Inaccuracy + add, self.MinInaccuracy, self.MaxInaccuracy)
+end
 
 
-function aim.Shooter(self)
+
+aim.Shooter = {}
+local Shooter = aim.Shooter
+function Shooter.Think(self)
 
 	self.AddInacc = self.AddInacc or 0
 	self.WasJumping = self.WasJumping or true
@@ -232,10 +261,15 @@ function aim.Shooter(self)
 	
 end
 
+function Shooter.AddInaccuracy(self, add)
+	self.Inaccuracy = math.Clamp(self.Inaccuracy + add, self.MinInaccuracy, self.MaxInaccuracy)
+end
 
 
 
-function aim.Static(self)
+aim.Static = {}
+local Static = aim.Static
+function Static.Think(self)
 
 	self.AddInacc = self.AddInacc or 0
 	self.WasJumping = self.WasJumping or true
@@ -287,6 +321,15 @@ function aim.Static(self)
 	
 end
 
+function Static.AddInaccuracy(self, add)
+	//self.Inaccuracy = math.Clamp(self.Inaccuracy + add, self.MinInaccuracy, self.MaxInaccuracy)
+end
 
 
-ACF.SWEP.DoAccuracy = aim[AimStyle] or error("ACF SWEPs: Couldn't find the " .. tostring(AimStyle) .. " aim-style!  Please choose a valid aim-style in acf_swepconfig.lua")
+
+if not (AimStyle and aim[AimStyle]) then
+	print("ACF SWEPs: Couldn't find the " .. tostring(AimStyle) .. " aim-style!  Please choose a valid aim-style in acf_swepconfig.lua.  Defaulting to WOT.")
+	AimStyle = "WOT"
+end
+
+if not aim[AimStyle] then error("ACF SWEPs: Couldn't find the " .. tostring(AimStyle) .. " aim-style!  Please choose a valid aim-style in acf_swepconfig.lua") end

@@ -127,7 +127,7 @@ function SWEP:Think()
 	end
 	
 	
-	ACF.SWEP.DoAccuracy(self)
+	ACF.SWEP.Think(self)
 	
 	
 	if self.ThinkAfter then self:ThinkAfter() end
@@ -185,7 +185,8 @@ end
 
 function SWEP:CanPrimaryAttack()
 	if self.Weapon:GetNetworkedBool( "reloading", false ) then return false end
-
+	if not (ACF.SWEP.NoclipShooting or self.Owner:GetMoveType() == MOVETYPE_WALK or self.Owner:InVehicle()) then return false end
+	
 	if CurTime() < self.Weapon:GetNextPrimaryFire() then return end
 	if self.Primary.ClipSize < 0 then
 		local ammoct = self.Owner:GetAmmoCount( self.Primary.Ammo )
@@ -199,6 +200,17 @@ function SWEP:CanPrimaryAttack()
 	end
 	
 	return true
+end
+
+
+
+function SWEP:SetInaccuracy(add)
+	ACF.SWEP.SetInaccuracy(self, add)
+end
+
+
+function SWEP:AddInaccuracy(add)
+	ACF.SWEP.AddInaccuracy(self, add)
 end
 
 
@@ -218,8 +230,7 @@ function SWEP:PrimaryAttack()
 		end
 		self:VisRecoil()
 		
-		self.Inaccuracy = math.Clamp(self.Inaccuracy + self.InaccuracyPerShot, self.MinInaccuracy, self.MaxInaccuracy)
-		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
+		self:AddInaccuracy(self.InaccuracyPerShot)
 	end
 	
 	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
@@ -228,7 +239,7 @@ end
 
 
 function SWEP:VisRecoil()
-	if SERVER then
+	if CLIENT then
 		local rnda = self.Primary.Recoil * -1 
 		local rndb = self.Primary.Recoil * math.random(-1, 1) 
 		
@@ -275,8 +286,7 @@ function SWEP:Reload()
 	
 		//print("do reload!")
 	
-		self.Inaccuracy = self.MaxInaccuracy
-		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
+		self:SetInaccuracy(self.MaxInaccuracy)
 	end
 
 end
