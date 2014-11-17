@@ -304,6 +304,15 @@ end
 
 
 
+function SWEP:DrawReticule(screenpos, aimRadius, fillFraction, colourFade)
+	if not CLIENT then return end
+	
+	ACF.SWEP.DrawReticule(self, screenpos, aimRadius, fillFraction, colourFade)
+end
+
+
+
+
 hook.Add("HUDPaint", "ACFWep_HUD", function()
 
 	if not (LocalPlayer():Alive() or LocalPlayer():InVehicle()) then return end
@@ -356,13 +365,6 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 		
 		if drawcircle then
 			fractLeft = math.Clamp(self.lastReloadTime - (CurTime() - self.reloadBegin), 0, self.lastReloadTime) / self.lastReloadTime
-			/*
-			local fontcol = HSVToColor( 120 - fractLeft * 120, 1, 1 )
-			surface.SetFont( "XCFSWEPReload" )
-			surface.SetTextColor( fontcol.r, fontcol.g, fontcol.b, 255 )
-			surface.SetTextPos( scrpos.x - aimRadius - 4, scrpos.y + aimRadius - 14 ) 
-			surface.DrawText( math.Round(100 - fractLeft * 100, 0) .. "%" )
-			//*/
 		end
 	end
 	self.wasReloading = isReloading
@@ -370,17 +372,7 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 	
 	
 	if drawcircle then
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
-	
-		local circlehue = Color(255, servstam*255, servstam*255, alpha)
-
-		if self.ShotSpread and self.ShotSpread > 0 then
-			surface.DrawCircle(scrpos.x, scrpos.y, aimRadius , Color(0, 0, 0, 128) )
-			aimRadius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
-		end
-		draw.Arc(scrpos.x, scrpos.y, aimRadius, -3, (1-fractLeft)*360, 360, 5, Color(0, 0, 0, alpha))
-		draw.Arc(scrpos.x, scrpos.y, aimRadius, -1.5, (1-fractLeft)*360, 360, 5, circlehue)
-		
+		self:DrawReticule(scrpos, aimRadius, fractLeft, servstam)
 	end
 	
 	self:DrawScope()

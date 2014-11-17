@@ -15,6 +15,9 @@
 // What accuracy scheme to use?  Choose from WOT, Shooter, Static
 local AimStyle = "Shooter"
 
+// What reticule should we use?  Choose from Circle, Crosshair
+local Reticule = "Circle"
+
 // Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
 
@@ -327,9 +330,93 @@ end
 
 
 
+
+if CLIENT then
+
+	ACF.SWEP.Reticules = {}
+	local rets = ACF.SWEP.Reticules
+	
+	
+	function swep.DrawReticule(self, screenpos, aimRadius, fillFraction, colourFade)
+		rets[Reticule].Draw(self, screenpos, aimRadius, fillFraction, colourFade)
+	end
+	
+	
+	
+	rets.Circle = {}
+	local Circle = rets.Circle
+	
+	function Circle.Draw(self, screenpos, radius, progress, colourFade)
+	
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+	
+		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
+	
+		if self.ShotSpread and self.ShotSpread > 0 then
+			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
+			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
+		end
+		draw.Arc(screenpos.x, screenpos.y, radius, -3, (1-progress)*360, 360, 5, Color(0, 0, 0, alpha))
+		draw.Arc(screenpos.x, screenpos.y, radius, -1.5, (1-progress)*360, 360, 5, circlehue)
+		
+	end
+	
+	
+	
+	rets.Crosshair = {}
+	local Crosshair = rets.Crosshair
+	local CrosshairLength = 20
+	
+	function Crosshair.Draw(self, screenpos, radius, progress, colourFade)
+	
+		screenpos = Vector(math.floor(screenpos.x + 0.5), math.floor(screenpos.y + 0.5), 0)
+	
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+	
+		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
+	
+		if self.ShotSpread and self.ShotSpread > 0 then
+			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
+			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
+		end
+		
+		if progress < 1 then progress = 1 - progress end
+		radius = radius + 1
+		
+		surface.SetDrawColor(Color(0, 0, 0, circlehue.a))
+		surface.DrawRect((screenpos.x - radius - CrosshairLength - 1), screenpos.y - 1, CrosshairLength + 3, 3)
+		surface.DrawRect((screenpos.x + radius - 1), screenpos.y - 1, CrosshairLength + 2, 3)
+		surface.DrawRect(screenpos.x - 1, (screenpos.y - radius - CrosshairLength - 1), 3, CrosshairLength + 3)
+		surface.DrawRect(screenpos.x - 1, (screenpos.y + radius - 1), 3, CrosshairLength + 2)
+		
+		surface.SetDrawColor(circlehue)
+		surface.DrawLine((screenpos.x + radius), screenpos.y, (screenpos.x + (radius + CrosshairLength * progress)), screenpos.y)
+		surface.DrawLine((screenpos.x - radius), screenpos.y, (screenpos.x - (radius + CrosshairLength * progress)), screenpos.y)
+		surface.DrawLine(screenpos.x, (screenpos.y + radius), screenpos.x, (screenpos.y + (radius + CrosshairLength * progress)))
+		surface.DrawLine(screenpos.x, (screenpos.y - radius), screenpos.x, (screenpos.y - (radius + CrosshairLength * progress)))
+		
+		
+		--draw.Arc(screenpos.x, screenpos.y, radius, -1.5, (1-progress)*360, 360, 5, circlehue)
+		
+	end
+
+	
+	
+	if not (Reticule and rets[Reticule]) then
+		print("ACF SWEPs: Couldn't find the " .. tostring(Reticule) .. " reticule!  Please choose a valid reticule in acf_swepconfig.lua.  Defaulting to Circle.")
+		Reticule = "Circle"
+	end
+	
+end
+
+
+
+
 if not (AimStyle and aim[AimStyle]) then
 	print("ACF SWEPs: Couldn't find the " .. tostring(AimStyle) .. " aim-style!  Please choose a valid aim-style in acf_swepconfig.lua.  Defaulting to WOT.")
 	AimStyle = "WOT"
 end
 
 if not aim[AimStyle] then error("ACF SWEPs: Couldn't find the " .. tostring(AimStyle) .. " aim-style!  Please choose a valid aim-style in acf_swepconfig.lua") end
+
+AddCSLuaFile()
