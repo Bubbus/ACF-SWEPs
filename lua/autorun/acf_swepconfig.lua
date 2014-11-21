@@ -189,13 +189,14 @@ local Shooter = aim.Shooter
 function Shooter.Think(self)
 
 	self.AddInacc = self.AddInacc or 0
-	self.WasJumping = self.WasJumping or true
+	--self.WasJumping = self.WasJumping or true
 
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
-	//print(self.Owner:GetVelocity():Length())
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
+	local inVehicle = self.Owner:InVehicle()
+	
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not inVehicle then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
@@ -209,34 +210,42 @@ function Shooter.Think(self)
 		local moving = self.Owner:KeyDown(IN_FORWARD) or self.Owner:KeyDown(IN_BACK) or self.Owner:KeyDown(IN_MOVELEFT) or self.Owner:KeyDown(IN_MOVERIGHT)
 		local sprinting = self.Owner:KeyDown(IN_SPEED)
 		local walking = self.Owner:KeyDown(IN_WALK)
-		local crouching = self.Owner:KeyDown(IN_DUCK)
+		local crouching = self.Owner:KeyDown(IN_DUCK) or inVehicle
+		local zoomed = self:GetNetworkedBool("Zoomed")
+		local jumping = not (self.Owner:OnGround() or inVehicle)
 		
-		local inacc = 0
+		local inacc = 0.25
 		
-		if moving then
-			inacc = inacc + 0.333
-			
-			if sprinting then
-				inacc = inacc + 0.4
-			elseif walking then
-				inacc = inacc - 0.2			
+		if zoomed then 
+			if crouching and not moving then 
+				inacc = 0
+			elseif not moving then
+				inacc = inacc * 0.08
+			elseif crouching then 
+				inacc = inacc * 0.33
+			else
+				inacc = inacc * 0.66
+			end
+		elseif crouching then
+			inacc = inacc * 0.5
+		end
+		
+		if moving then 
+			if sprinting then 
+				inacc = inacc * 4
+			elseif walking 
+				then inacc = inacc * 1.5
+			else
+				inacc = inacc * 2
 			end
 		end
 		
-		if not crouching then
-			inacc = inacc + 0.25
+		if jumping then
+			inacc = inacc * 4 
+			if not self.WasJumping and self.Owner:KeyDown(IN_JUMP) then
+				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - 0.15, 0, 1)
+			end
 		end
-		
-		
-		local zoomed = self:GetNetworkedBool("Zoomed")
-		if zoomed then inacc = inacc * 0.5 end
-		
-		
-		--local jumping = self.Owner:KeyDown(IN_JUMP)
-		--if jumping and not self.WasJumping then--and self.Owner:OnGround() then
-		--	self.Inaccuracy = self.Inaccuracy + 0.5 * inaccuracydiff
-		--end
-		
 		
 		local healthFract = self.Owner:Health() / 100
 		self.MaxStamina = math.Clamp(healthFract, 0.25, 1)
