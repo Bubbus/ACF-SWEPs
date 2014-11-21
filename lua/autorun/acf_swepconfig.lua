@@ -349,16 +349,20 @@ if CLIENT then
 	
 	function Circle.Draw(self, screenpos, radius, progress, colourFade)
 	
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+		screenpos = Vector(math.floor(screenpos.x + 0.5), math.floor(screenpos.y + 0.5), 0)
+	
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 50 or 255
 	
 		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
 	
 		if self.ShotSpread and self.ShotSpread > 0 then
+			radius = ScrW() / 2 * (self.ShotSpread) / self.Owner:GetFOV()
 			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
+			
 			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
-		draw.Arc(screenpos.x, screenpos.y, radius, -3, (1-progress)*360, 360, 5, Color(0, 0, 0, alpha))
-		draw.Arc(screenpos.x, screenpos.y, radius, -1.5, (1-progress)*360, 360, 5, circlehue)
+		draw.Arc(screenpos.x, screenpos.y, radius, -2, (1-progress)*360, 360, 3, Color(0, 0, 0, alpha))
+		draw.Arc(screenpos.x, screenpos.y, radius, -1, (1-progress)*360, 360, 3, circlehue)
 		
 	end
 	
@@ -372,11 +376,13 @@ if CLIENT then
 	
 		screenpos = Vector(math.floor(screenpos.x + 0.5), math.floor(screenpos.y + 0.5), 0)
 	
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 70 or 255
 	
 		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
 	
 		if self.ShotSpread and self.ShotSpread > 0 then
+			radius = ScrW() / 2 * (self.ShotSpread) / self.Owner:GetFOV()
+			
 			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
 			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
