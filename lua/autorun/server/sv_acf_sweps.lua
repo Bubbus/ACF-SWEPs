@@ -110,7 +110,7 @@ end
 
 
 
-function ACF_CustomBulletLaunch(BData)
+function ACF_BulletLaunch(BData)
 
 	ACF.CurBulletIndex = ACF.CurBulletIndex + 1		--Increment the index
 	if ACF.CurBulletIndex > ACF.BulletIndexLimt then
@@ -128,8 +128,12 @@ function ACF_CustomBulletLaunch(BData)
 		BData["InitTime"] = SysTime()
 	end
 	
-	if not BData.TraceBackComp and BData.Gun:IsValid() then											--Check the Gun's velocity and add a modifier to the flighttime so the traceback system doesn't hit the originating contraption if it's moving along the shell path
-		BData["TraceBackComp"] = BData.Gun:GetPhysicsObject():GetVelocity():Dot(BData.Flight:GetNormalized())
+	if not BData.TraceBackComp then											--Check the Gun's velocity and add a modifier to the flighttime so the traceback system doesn't hit the originating contraption if it's moving along the shell path
+		if IsValid(BData.Gun) then
+			BData["TraceBackComp"] = BData.Gun:GetPhysicsObject():GetVelocity():Dot(BData.Flight:GetNormalized())
+		else
+			BData["TraceBackComp"] = 0
+		end
 	end
 	
 	BData.Filter = BData.Filter or { BData["Gun"] }
@@ -143,6 +147,15 @@ function ACF_CustomBulletLaunch(BData)
 		ACF_BulletClient( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex], "Init" , 0 )
 		--ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
 	end
+	
+end
+
+
+
+
+function ACF_CustomBulletLaunch(BData)
+
+	ACF_BulletLaunch(BData)
 	
 	if BData.HandlesOwnIteration then
 		bullets[BData.Owner] = bullets[BData.Owner] or {}
@@ -208,5 +221,34 @@ function ACF_ExpandBulletData(bullet)
 	//*/
 	
 	return ret
+
+end
+
+
+
+
+function ACF_MakeCrateForBullet(self, bullet)
+
+	if not (type(bullet) == "table") then
+		--print("we got swep?")
+		if bullet.BulletData then
+			self:SetNetworkedString( "Sound", bullet.Primary and bullet.Primary.Sound or nil)
+			self.Owner = bullet:GetOwner()
+			self:SetOwner(bullet:GetOwner())
+			bullet = bullet.BulletData
+		end
+	end
+	
+	
+	self:SetNetworkedInt( "Caliber", bullet.Caliber or 10)
+	self:SetNetworkedInt( "ProjMass", bullet.ProjMass or 10)
+	self:SetNetworkedInt( "FillerMass", bullet.FillerMass or 0)
+	self:SetNetworkedInt( "DragCoef", bullet.DragCoef or 1)
+	self:SetNetworkedString( "AmmoType", bullet.Type or "AP")
+	self:SetNetworkedInt( "Tracer" , bullet.Tracer or 0)
+	local col = bullet.Colour or self:GetColor()
+	self:SetNetworkedVector( "Color" , Vector(col.r, col.g, col.b))
+	self:SetNetworkedVector( "TracerColour" , Vector(col.r, col.g, col.b))
+	self:SetColor(col)
 
 end
