@@ -3,13 +3,13 @@
 
 if (CLIENT) then
 	
-	SWEP.PrintName			= "ACF Landmine"
+	SWEP.PrintName			= "ACF Anti-Tank Mine"
 	SWEP.Author				= "Bubbus"
 	SWEP.Slot				= 4
 	SWEP.SlotPos			= 3
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
-	SWEP.Purpose		= "Make dudes disappear 10 years in the future."
+	SWEP.Purpose		= "Make tanks disappear 10 years in the future."
 	SWEP.Instructions       = "Reload at Bomb Ammo-boxes!"
 
 end
@@ -25,7 +25,7 @@ SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
 SWEP.ViewModel 			= "models/weapons/v_c4.mdl"
 SWEP.WorldModel 		= "models/weapons/w_c4.mdl"
-SWEP.ThrowModel 		= "models/dav0r/buttons/button.mdl"
+SWEP.ThrowModel 		= "models/maxofs2d/button_05.mdl"
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
@@ -40,7 +40,7 @@ SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "Grenade"
 SWEP.Primary.Sound 			= "Weapon_Grenade.Fire"
 
-SWEP.ReloadTime				= 4
+SWEP.ReloadTime				= 5
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -73,8 +73,8 @@ SWEP.Launcher = false
 SWEP.IsGrenadeWeapon	= true
 SWEP.GrenadeRemove		= true
 SWEP.HasChargeTimer		= true
-SWEP.ChargeTime = 1
-SWEP.ThrowVel	= 5
+SWEP.ChargeTime = 1.5
+SWEP.ThrowVel	= 4
 
 
 
@@ -84,15 +84,16 @@ function SWEP:InitBulletData()
 	self.BulletData = {}
 	self.BulletData["Colour"]		= Color(255, 255, 255)
 	self.BulletData["Data10"]		= "0.00"
-	self.BulletData["Data5"]		= "213.44"
-	self.BulletData["Data6"]		= "56.610001"
+	self.BulletData["Data5"]		= "2217.99"
+	self.BulletData["Data6"]		= "56.61"
 	self.BulletData["Data7"]		= "0"
 	self.BulletData["Data8"]		= "0"
 	self.BulletData["Data9"]		= "0"
-	self.BulletData["Id"]		= "60mmM"
-	self.BulletData["ProjLength"]		= "9.00"
+	self.BulletData["Id"]		= "75mmHW"
+	self.BulletData["ProjLength"]		= "59.99"
 	self.BulletData["PropLength"]		= "0.01"
-	self.BulletData["Type"]		= "HE"
+	self.BulletData["Type"]		= "HEAT"
+
 
 
 	self.BulletData.IsShortForm = true
