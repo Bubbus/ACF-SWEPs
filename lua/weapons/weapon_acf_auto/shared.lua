@@ -54,17 +54,17 @@ SWEP.IronSightsPos = Vector(-3.23, 5.15, 2.290)
 SWEP.ZoomPos = Vector(2,2,2)
 SWEP.IronSightsAng = Angle(0, 0, 0)
 
-SWEP.MinInaccuracy = 0.5
-SWEP.MaxInaccuracy = 7
+SWEP.MinInaccuracy = 0.7
+SWEP.MaxInaccuracy = 8
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.2
-SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 3
-SWEP.InaccuracyCrouchBonus = 1.3
-SWEP.InaccuracyDuckPenalty = 4
+SWEP.InaccuracyDecay = 0.25
+SWEP.AccuracyDecay = 0.35
+SWEP.InaccuracyPerShot = 3.5
+SWEP.InaccuracyCrouchBonus = 1.2
+SWEP.InaccuracyDuckPenalty = 3.5
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004 / 1
+SWEP.StaminaDrain = 0.006 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true

@@ -36,7 +36,7 @@ SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
 SWEP.Primary.Sound 			= "Weapon_XM1014.Single"
 
-SWEP.ReloadTime				= 0.8
+SWEP.ReloadTime				= 0.7
 SWEP.ReloadByRound			= true
 
 SWEP.Secondary.ClipSize		= -1
@@ -56,7 +56,7 @@ SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
 SWEP.MinInaccuracy = 1
-SWEP.MaxInaccuracy = 7
+SWEP.MaxInaccuracy = 2.5
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.12
 SWEP.AccuracyDecay = 0.3
@@ -64,7 +64,7 @@ SWEP.InaccuracyPerShot = 6
 SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 1
 
-SWEP.ShotSpread = 2
+SWEP.ShotSpread = 3
 
 SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004 / 1
@@ -73,7 +73,7 @@ SWEP.StaminaJumpDrain = 0.1
 SWEP.HasZoom = true
 SWEP.ZoomInaccuracyMod = 0.1
 SWEP.ZoomDecayMod = 1.6
-SWEP.ZoomFOV = 65
+SWEP.ZoomFOV = 70
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
