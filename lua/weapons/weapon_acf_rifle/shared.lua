@@ -57,7 +57,7 @@ SWEP.ZoomPos = Vector(2,3,4)
 SWEP.IronSightsAng = Angle(0, 0, 0)
 --SWEP.ZoomTime = 0.4
 
-SWEP.MinInaccuracy = 0.10
+SWEP.MinInaccuracy = 0.15
 SWEP.MaxInaccuracy = 8
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.20
