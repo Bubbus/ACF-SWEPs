@@ -111,8 +111,7 @@ function WOT.Think(self)
 
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
-	//print(self.Owner:GetVelocity():Length())
-	self.LastAim = self.LastAim or Vector(1, 0, 0)
+	self.LastAim = type(self.LastAim) == "Vector" and self.LastAim or Vector(1, 0, 0)
 	
 	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
@@ -135,6 +134,7 @@ function WOT.Think(self)
 		local diffaim = math.min(aim:Distance(self.LastAim) * 30, difflimit)
 		
 		local crouching = self.Owner:Crouching()
+		local jumping = not (self.Owner:OnGround() or inVehicle)
 		local decay = self.InaccuracyDecay * WOT_ACC_SCALE
 		local penalty = 0
 		
@@ -160,6 +160,13 @@ function WOT.Think(self)
 			penalty = penalty + self.InaccuracyDuckPenalty
 		end
 		
+		if jumping then
+			penalty = penalty + self.InaccuracyPerShot
+			if not self.WasJumping and self.Owner:KeyDown(IN_JUMP) then
+				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaJumpDrain, 0, 1)
+			end
+		end
+		
 		//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
 		local rawinaccuracy = self.MinInaccuracy + vel * timediff
 		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty + diffaim
@@ -171,6 +178,7 @@ function WOT.Think(self)
 		XCFDBG_ThinkTime = timediff
 		self.LastThink = CurTime()
 		self.WasCrouched = self.Owner:Crouching()
+		self.WasJumping = jumping
 	
 		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
 	end
@@ -243,7 +251,7 @@ function Shooter.Think(self)
 		if jumping then
 			inacc = inacc * 4 
 			if not self.WasJumping and self.Owner:KeyDown(IN_JUMP) then
-				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - 0.15, 0, 1)
+				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaJumpDrain, 0, 1)
 			end
 		end
 		
