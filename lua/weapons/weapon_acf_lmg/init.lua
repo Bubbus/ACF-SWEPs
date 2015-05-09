@@ -14,16 +14,15 @@ SWEP.AutoSwitchFrom		= false
 
 
 local LOW_AMMO_COL = Color(255, 100, 0)
+
 function SWEP:BeforeFire()
 	local clip1 = self:Clip1()
-	if clip1 <= 10 then
-		self.BulletData["Tracer"] = 2.5
-		self.BulletData["Colour"] = LOW_AMMO_COL
-	elseif clip1 % 3 == 0 then
-		self.BulletData["Tracer"] = 2.5
-		self.BulletData["Colour"] = nil
-	else
-		self.BulletData["Tracer"] = 0
-		self.BulletData["Colour"] = nil
+    
+	if clip1 <= 10 and not self.isLow then
+		self:UpdateTracers(LOW_AMMO_COL)
+        self.isLow = true
+    elseif clip1 > 10 and self.isLow then
+        self:UpdateTracers()
+        self.isLow = false
 	end
 end
