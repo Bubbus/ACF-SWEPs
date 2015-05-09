@@ -144,7 +144,12 @@ end
 
 function SWEP:SetZoom(zoom)
 
-	self.Zoomed = zoom or (not self.Zoomed)
+    if zoom == nil then
+        self.Zoomed = not self.Zoomed
+    else
+        self.Zoomed = zoom
+    end
+	
 	
 	if SERVER then self:SetNetworkedBool("Zoomed", self.Zoomed) end
 	
@@ -176,9 +181,8 @@ end
 
 function SWEP:Holster()
 	
-	--self:SetZoom(false)
-	
 	return true
+    
 end
 
 
@@ -374,7 +378,30 @@ end
 
 
 
+function SWEP:UpdateTracers(overrideCol)
+
+    if not SERVER then return end
+
+    if overrideCol then
+    
+        self.BulletData["Colour"] =	overrideCol
+        
+    elseif ACF.SWEP.PlayerTracers and IsValid(self.Owner) then
+    
+        local col = self.Owner:GetPlayerColor()
+        self.BulletData["Colour"] =	Color(col.r * 255, col.g * 255, col.b * 255)
+        
+    end
+    
+    self:UpdateFakeCrate()
+    
+end
+
+
+
+
 function SWEP:Equip(ply)
 	self.Owner = ply
 	self:SetNextPrimaryFire(CurTime())
+    self:UpdateTracers()
 end

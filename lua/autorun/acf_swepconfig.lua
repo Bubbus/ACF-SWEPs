@@ -16,7 +16,7 @@
 local AimStyle = "Shooter"
 
 // What reticule should we use?  Choose from Circle, Crosshair
-local Reticule = "Circle"
+local Reticule = "Crosshair"
 
 // Use ironsights when aiming, or just hug the weapon closer?
 local IronSights = true
@@ -26,6 +26,8 @@ local LagCompensation = true
 local NoclipShooting = false
 // Kick up dust on bullet impacts for all guns, or only snipers?  Fun but potentially laggy.
 local AlwaysDust = false
+// Make the weapon tracers match the player's custom colour?
+local PlayerTracers = true
 
 
 // How fast should stamina drain while sprinting?  This is a scaling number.
@@ -67,6 +69,7 @@ ACF.SWEP.IronSights 	= IronSights
 ACF.SWEP.LagComp 		= LagCompensation
 ACF.SWEP.NoclipShooting = NoclipShooting
 ACF.SWEP.AlwaysDust		= AlwaysDust
+ACF.SWEP.PlayerTracers  = PlayerTracers
 
 local swep	= ACF.SWEP
 local aim	= ACF.SWEP.Aim

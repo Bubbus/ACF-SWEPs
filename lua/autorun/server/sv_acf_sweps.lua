@@ -26,7 +26,7 @@ function ACF_CreateBulletSWEP( BulletData, Swep, LagComp )
 
 	if not IsValid(Swep) then error("Tried to create swep round with no swep or owner!") return end
 	
-	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or Ply or error("Tried to create swep round with unowned swep!")
+	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or error("Tried to create swep round with unowned swep!")
 
 	BulletData = table.Copy(BulletData)
 	
@@ -43,8 +43,19 @@ function ACF_CreateBulletSWEP( BulletData, Swep, LagComp )
 	BulletData.Gun = Swep
 	
 	BulletData.Filter = BulletData.Filter or {}
-	BulletData.Filter[#BulletData.Filter + 1] = Swep
-	BulletData.Filter[#BulletData.Filter + 1] = owner
+    
+    if IsValid(Swep) then
+        BulletData.Filter[#BulletData.Filter + 1] = Swep
+    end
+    
+	if IsValid(owner) then
+        BulletData.Filter[#BulletData.Filter + 1] = owner
+        
+        local vehicle = owner:GetVehicle()
+        if IsValid(vehicle) then
+            BulletData.Filter[#BulletData.Filter + 1] = vehicle
+        end
+    end
 	
 	ACF_CustomBulletLaunch(BulletData)
 	
@@ -246,9 +257,10 @@ function ACF_MakeCrateForBullet(self, bullet)
 	self:SetNetworkedInt( "DragCoef", bullet.DragCoef or 1)
 	self:SetNetworkedString( "AmmoType", bullet.Type or "AP")
 	self:SetNetworkedInt( "Tracer" , bullet.Tracer or 0)
+    
 	local col = bullet.Colour or self:GetColor()
-	self:SetNetworkedVector( "Color" , Vector(col.r, col.g, col.b))
-	self:SetNetworkedVector( "TracerColour" , Vector(col.r, col.g, col.b))
+	self:SetNWVector( "Color" , Vector(col.r, col.g, col.b))
+	self:SetNWVector( "TracerColour" , Vector(col.r, col.g, col.b))
 	self:SetColor(col)
 
 end

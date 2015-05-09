@@ -125,11 +125,6 @@ function SWEP:FireBullet()
 	self.BulletData["Owner"] = self.Owner
 	self.BulletData["Gun"] = self
 	
-	local filter = self.BulletData["Filter"] or {}
-	filter[#filter + 1] = self.Owner
-	filter[#filter + 1] = self.Owner:GetVehicle() or nil
-	self.BulletData["Filter"] = filter
-	
 	if self.BeforeFire then
 		self:BeforeFire()
 	end
