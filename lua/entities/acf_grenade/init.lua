@@ -10,13 +10,10 @@ CreateConVar('sbox_max_acf_grenade', 20)
 
 
 function ENT:Initialize()
-	
-	self.BulletData = {}	
+    
+	self.BulletData = self.BulletData or {}	
 	self.SpecialDamage = true	--If true needs a special ACF_OnDamage function
 	self.ShouldTrace = false
-	
-	self.Model = "models/missiles/aim54.mdl"
-	self:SetModelEasy(self.Model)
 	
 	self.Inputs = Wire_CreateInputs( self, { "Detonate" } )
 	self.Outputs = Wire_CreateOutputs( self, {} )
@@ -24,8 +21,7 @@ function ENT:Initialize()
 	self.ThinkDelay = 0.1
 	
 	self.TraceFilter = {self}
-	--self.ACF_HEIgnore = true
-	
+
 end
 
 
@@ -34,7 +30,7 @@ local nullhit = {Damage = 0, Overkill = 1, Loss = 0, Kill = false}
 function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )
 	self.ACF.Armour = 0.1
 	local HitRes = ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor )	--Calling the standard damage prop function
-	if self.Detonated then return table.Copy(nullhit) end
+	if self.Detonated or self.DisableDamage then return table.Copy(nullhit) end
 	
 	local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
 	if CanDo == false then return table.Copy(nullhit) end
@@ -105,19 +101,7 @@ function ENT:CreateBomb(Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, 
 	self.RoundData9 = ( Data9 or 0 )
 	self.RoundData10 = ( Data10 or 0 )
 	
-	local PlayerData = bdata or 
-	{
-		Id 		= self.RoundId,
-		Type 	= self.RoundType,
-		PropLength = self.RoundPropellant,
-		ProjLength = self.RoundProjectile,
-		Data5 	= self.RoundData5,
-		Data6 	= self.RoundData6,
-		Data7 	= self.RoundData7,
-		Data8 	= self.RoundData8,
-		Data9 	= self.RoundData9,
-		Data10 	= self.RoundData10
-	}
+	local PlayerData = bdata or ACF_CompactBulletData(self)
 	
 	local guntable = ACF.Weapons.Guns
 	local gun = guntable[self.RoundId] or {}
@@ -131,12 +115,10 @@ end
 function ENT:SetModelEasy(mdl)
 	local curMdl = self:GetModel()
 	
-	if not mdl or curMdl == mdl or not Model(mdl) then
+	if not mdl or curMdl == mdl then
 		self.Model = self:GetModel()
 		return 
 	end
-	
-	mdl = Model(mdl)
 	
 	self:SetModel( mdl )
 	self.Model = mdl
@@ -159,8 +141,10 @@ end
 
 function ENT:SetBulletData(bdata)
 
-	if not (bdata.IsShortForm or bdata.Data5) then error("acf_grenade requires short-form bullet-data but was given expanded bullet-data.") print(bdata) end
+	if not (bdata.IsShortForm or bdata.Data5) then error("acf_grenade requires short-form bullet-data but was given expanded bullet-data.") end
 	
+    bdata = ACF_CompactBulletData(bdata)
+    
 	self:CreateBomb(
 		bdata.Data1 or bdata.Id,
 		bdata.Type or bdata.Data2,
@@ -174,9 +158,6 @@ function ENT:SetBulletData(bdata)
 		bdata.Data10, 
 		nil,
 		bdata)
-
-	//print("done")
-	//pbn(bdata)
 	
 	self:ConfigBulletDataShortForm(bdata)
 end
@@ -190,7 +171,7 @@ function ENT:ConfigBulletDataShortForm(bdata)
 	self.BulletData = bdata
 	self.BulletData.Entity = self
 	self.BulletData.Crate = self:EntIndex()
-	self.BulletData.Owner = self.Owner
+	self.BulletData.Owner = self.BulletData.Owner or self.Owner
 	
 	local phys = self.Entity:GetPhysicsObject()  	
 	if (IsValid(phys)) then  		
@@ -235,60 +216,45 @@ end
 
 
 
-function ENT:Detonate()
+function ENT:Detonate(overrideBData)
 	
 	if self.Detonated then return end
 	
 	self.Detonated = true
 	
-	local bdata = self.BulletData
+	local bdata = overrideBData or self.BulletData
+    
 	local phys = self:GetPhysicsObject()
 	local pos = self:GetPos()
-	
-	
-	local up = self:GetUp()
-	
-	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 1000)
-	bdata.Flight = Vector(0, 0, math.max(bdata.MuzzleVel * 39.37, 10000))--phyvel
-	bdata.Pos = pos + bdata.Flight:GetNormalized() * 3
-	bdata.Owner = self.Owner
-	bdata.NoOcc = self
-	
-	//pbn(bdata)
-	
-	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
+    
+	local phyvel = 	phys and phys:GetVelocity() or Vector(0, 0, 1000)
+	bdata.Flight = 	bdata.Flight or phyvel
+	bdata.Owner = 	bdata.Owner or self.Owner
+	bdata.Pos = 	pos + bdata.Flight:GetNormalized() * (self.VelocityOffset or 0)
+	bdata.NoOcc = 	self
+    bdata.Gun =     self
+    
+    --debugoverlay.Line(bdata.Pos, bdata.Pos + bdata.Flight:GetNormalized() * 100, 10, Color(255, 128, 0))
+    
+    if bdata.Filter then bdata.Filter[#bdata.Filter+1] = self
+    else bdata.Filter = {self} end
 	
 	bdata.RoundMass = bdata.RoundMass or bdata.ProjMass
 	bdata.ProjMass = bdata.ProjMass or bdata.RoundMass 
 	
 	bdata.HandlesOwnIteration = nil
-	
-	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
-	--print(bdata.Crate, Entity(bdata.Crate))
-	
+
 	
 	ACF_BulletLaunch(bdata)
-	--pbn(bdata)
-	
 	timer.Simple(1, function() if IsValid(self) then self:Remove() end end)
 	
-	--self:SetCollisionGroup( COLLISION_GROUP_IN_VEHICLE )
-	--print("solid")
+
 	self:SetSolid(SOLID_NONE)
-	self:SetPos(Vector(0,0,0))
 	phys:EnableMotion(false)
 	
 	self:DoReplicatedPropHit(bdata)
 	
-	--ACF.RoundTypes[bdata.Type]["endflight"]( bdata.Index, bdata, pos, up )
-	--ACF_BulletClient( bdata.Index, bdata, "Update", 1, pos )
-	-- end)
-	--ACFGrenades[#ACFGrenades+1] = bdata
-	
-	bdata.SimPos = pos
-	bdata.SimFlight = phyvel
-	
-	//ACF.RoundTypes[bdata.Type]["endeffect"]( nil, bdata)
+    self:SetNoDraw(true)
 
 end
 
@@ -305,11 +271,15 @@ function ENT:DoReplicatedPropHit(Bullet)
 	
 	if Retry == "Penetrated" then		--If we should do the same trace again, then do so
 		--print("a")
+        ACF_ResetVelocity(Bullet)
+        
 		if Bullet.OnPenetrated then Bullet.OnPenetrated(Index, Bullet, FlightRes) end
 		ACF_BulletClient( Index, Bullet, "Update" , 2 , FlightRes.HitPos  )
 		ACF_CalcBulletFlight( Index, Bullet, true )
 	elseif Retry == "Ricochet"  then
 		--print("b")
+        ACF_ResetVelocity(Bullet)
+        
 		if Bullet.OnRicocheted then Bullet.OnRicocheted(Index, Bullet, FlightRes) end
 		ACF_BulletClient( Index, Bullet, "Update" , 3 , FlightRes.HitPos  )
 		ACF_CalcBulletFlight( Index, Bullet, true )
@@ -326,22 +296,15 @@ end
 
 
 
---local undonked = true
 function ENT:OnTraceContact(trace)
-	/*
-	if undonked then
-		print("donk!")
-		printByName(trace)
-		undonked = false
-	end
-	//*/
+
 end
 
 
 
 function ENT:SetShouldTrace(bool)
 	self.ShouldTrace = bool and true
-	--print(self.ShouldTrace)
+
 	self:NextThink(CurTime())
 end
 
@@ -360,13 +323,7 @@ end
 
 
 function ENT:RefreshClientInfo()
-	-- self:SetNetworkedString("RoundId", self.RoundId)
-	-- self:SetNetworkedString("RoundType", self.RoundType)
-	-- self:SetNetworkedFloat("FillerVol", self.RoundData5)
-	
-	-- local col = self.BulletData.Colour or Color(255, 255, 255)
-	-- self:SetNetworkedVector( "TracerColour",  Vector(col.r, col.g, col.b))
-	
+
 	ACF_MakeCrateForBullet(self, self.BulletData)
 	
 end
