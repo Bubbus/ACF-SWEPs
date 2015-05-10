@@ -71,14 +71,14 @@ function SWEP.mineTrace(bomb)
 	
 	local pos = bomb:GetPos()
 	local vel = bomb:GetVelocity()
+    local tracedir
+    
 	trace.start = pos
 	trace.filter = bomb.Timeout < CurTime() and bomb or {bomb, bomb.Owner, bomb.Owner:GetVehicle()}
 	
 	if vel:Length() < 10 then
 		local entup = bomb:GetUp()
 		local entdn = -entup
-		
-		local tracedir
 		
 		if entup:Dot(up) >= entdn:Dot(up) then
 			tracedir = entup
@@ -89,9 +89,11 @@ function SWEP.mineTrace(bomb)
 		trace.endpos = pos + tracedir * MINE_TRACEDIST
 		
 	else
+        tracedir = vel:GetNormalized()
 		trace.endpos = pos + vel * bomb.ThinkDelay
 	end
 	
+    bomb.BulletData.Flight = tracedir * (bomb.BulletData.SlugMV or 1000)
 	
 	debugoverlay.Cross( trace.start, 4, 0.11, Color(255, 0, 0), true )
 	debugoverlay.Line( trace.start, trace.endpos, 0.11, Color(255, 0, 0), true )
@@ -99,11 +101,8 @@ function SWEP.mineTrace(bomb)
 
 	local res = util.TraceEntity( trace, bomb ) 
 	if res.Hit and not (res.Entity:IsPlayer() or res.Entity:IsNPC()) then
-		bomb:OnTraceContact(res)
+        timer.Simple(0.3, function() if IsValid(bomb) then bomb:OnTraceContact(res) end end)
 	end	
-	
-
-	
 	
 end
 
