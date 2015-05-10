@@ -238,6 +238,38 @@ end
 
 
 
+function ACF_CompactBulletData(crate)  
+    
+    local compact = {}
+
+    compact["Id"] = 			crate.RoundId       or crate.Id
+    compact["Type"] = 		    crate.RoundType     or crate.Type
+    compact["PropLength"] = 	crate.PropLength    or crate.RoundPropellant
+    compact["ProjLength"] = 	crate.ProjLength    or crate.RoundProjectile
+    compact["Data5"] = 		    crate.Data5         or crate.RoundData5         or crate.FillerVol      or crate.CavVol             or crate.Flechettes
+    compact["Data6"] = 		    crate.Data6         or crate.RoundData6         or crate.ConeAng        or crate.FlechetteSpread
+    compact["Data7"] = 		    crate.Data7         or crate.RoundData7
+    compact["Data8"] = 		    crate.Data8         or crate.RoundData8
+    compact["Data9"] = 		    crate.Data9         or crate.RoundData9
+    compact["Data10"] = 		crate.Data10        or crate.RoundData10        or crate.Tracer
+    
+    compact["Colour"] = 		crate.GetColor and crate:GetColor() or crate.Colour
+    
+    
+    if not compact.Data5 and crate.FillerMass then
+        local Filler = ACF.FillerDensity[compact.Type]
+        
+        if Filler then
+            compact.Data5 = crate.FillerMass / ACF.HEDensity * Filler
+        end
+    end
+    
+    return compact
+end
+
+
+
+
 function ACF_MakeCrateForBullet(self, bullet)
 
 	if not (type(bullet) == "table") then
