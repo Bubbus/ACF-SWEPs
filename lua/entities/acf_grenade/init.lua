@@ -271,14 +271,14 @@ function ENT:DoReplicatedPropHit(Bullet)
 	
 	if Retry == "Penetrated" then		--If we should do the same trace again, then do so
 		--print("a")
-        ACF_ResetVelocity(Bullet)
+        --ACF_ResetVelocity(Bullet)
         
 		if Bullet.OnPenetrated then Bullet.OnPenetrated(Index, Bullet, FlightRes) end
 		ACF_BulletClient( Index, Bullet, "Update" , 2 , FlightRes.HitPos  )
 		ACF_CalcBulletFlight( Index, Bullet, true )
 	elseif Retry == "Ricochet"  then
 		--print("b")
-        ACF_ResetVelocity(Bullet)
+        --ACF_ResetVelocity(Bullet)
         
 		if Bullet.OnRicocheted then Bullet.OnRicocheted(Index, Bullet, FlightRes) end
 		ACF_BulletClient( Index, Bullet, "Update" , 3 , FlightRes.HitPos  )
