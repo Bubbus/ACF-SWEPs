@@ -64,37 +64,39 @@ end
 local nosplode = {AP = true, HP = true}
 local nopen = {HE = true, SM = true}
 function SWEP:DoAmmoStatDisplay()
-
-	local bdata = self.BulletData
+    
+    local bdata = self.BulletData
 
 	if bdata.IsShortForm then
 		bdata = ACF_ExpandBulletData(table.Copy(bdata))
 	end
-
-	local bType = bdata.Type
-	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
-									tostring(bdata.Caliber * 10),
-									bType,
-									self.ThrowVel or bdata.MuzzleVel
-								  )
+    
+    local roundType = bdata.Type
 	
-	if not nopen[bType] then
-		local maxpen = bdata.MaxPen or (ACF_Kinetic(
-														(bdata.SlugMV or bdata.MuzzleVel)*39.37,
-														(bdata.SlugMass or bdata.ProjMass),
-														bdata.SlugMV and 999999 or bdata.LimitVel or 900
-													  ).Penetration / (bdata.SlugPenAera or bdata.PenAera) * ACF.KEtoRHA
-												 )
-	
-		sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
-												maxpen
-											)
+	if bdata.Tracer and bdata.Tracer > 0 then 
+		roundType = roundType .. "-T"
 	end
-
-	if not nosplode[bType] then
-		sendInfo = sendInfo .. string.format( 	", %.1fm blast",
-												(bdata.BlastRadius or (((bdata.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
-											)
+	
+	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
+                                    tostring(bdata.Caliber * 10),
+									roundType,
+									self.ThrowVel or bdata.MuzzleVel)
+	
+	local RoundData = list.Get("ACFRoundTypes")[ bdata.Type ]
+    
+	if RoundData and RoundData.getDisplayData then
+		local DisplayData = RoundData.getDisplayData( bdata )
+        
+        if not nopen[bdata.Type] then
+            sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
+                                                    DisplayData.MaxPen)
+        end
+        
+        if not nosplode[bdata.Type] then
+            sendInfo = sendInfo .. string.format( 	", %.1fm blast",
+                                                    DisplayData.BlastRadius)
+        end
+            
 	end
 	
 	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
