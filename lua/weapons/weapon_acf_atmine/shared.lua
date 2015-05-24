@@ -83,16 +83,18 @@ function SWEP:InitBulletData()
 	//*
 	self.BulletData = {}
 	self.BulletData["Colour"]		= Color(255, 255, 255)
-	self.BulletData["Data10"]		= "0.00"
-	self.BulletData["Data5"]		= "2217.99"
-	self.BulletData["Data6"]		= "56.61"
-	self.BulletData["Data7"]		= "0"
-	self.BulletData["Data8"]		= "0"
-	self.BulletData["Data9"]		= "0"
-	self.BulletData["Id"]		= "75mmHW"
-	self.BulletData["ProjLength"]		= "59.99"
-	self.BulletData["PropLength"]		= "0.01"
-	self.BulletData["Type"]		= "HEAT"
+self.BulletData["Data10"]		= "0.00"
+self.BulletData["Data5"]		= "6703.25"
+self.BulletData["Data6"]		= "15.28"
+self.BulletData["Data7"]		= "Dumb"
+self.BulletData["Data8"]		= "Contact"
+self.BulletData["Data9"]		= "4x FIM-92"
+self.BulletData["Id"]		= "105mmHW"
+self.BulletData["ProjLength"]		= "85.99"
+self.BulletData["PropLength"]		= "0.01"
+self.BulletData["Type"]		= "HEAT"
+
+
 
 
 
