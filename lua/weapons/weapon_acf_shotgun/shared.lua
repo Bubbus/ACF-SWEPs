@@ -55,12 +55,12 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 1
-SWEP.MaxInaccuracy = 2.5
+SWEP.MinInaccuracy = 0.66
+SWEP.MaxInaccuracy = 2
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.12
 SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 6
+SWEP.InaccuracyPerShot = 2
 SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 1
 
@@ -78,6 +78,9 @@ SWEP.ZoomFOV = 70
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+
+SWEP.RecoilScale = 1
+SWEP.RecoilDamping = 0.18
 
 
 

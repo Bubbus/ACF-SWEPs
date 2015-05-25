@@ -54,8 +54,8 @@ SWEP.ScopeChopAngle = Angle(0, 0, -90)
 
 SWEP.ZoomTime = 0.4
 
-SWEP.MinInaccuracy = 0.5
-SWEP.MaxInaccuracy = 12
+SWEP.MinInaccuracy = 0.33
+SWEP.MaxInaccuracy = 9
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.1
 SWEP.AccuracyDecay = 0.3
@@ -72,6 +72,10 @@ SWEP.HasScope = false
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+
+SWEP.RecoilAxis = Vector(0,0,0)
+SWEP.RecoilScale = 0.5
+SWEP.RecoilDamping = 0.25
 
 
 
@@ -244,17 +248,56 @@ end
 
 function SWEP:VisRecoil()
 	if SERVER then
-		local rnda = self.Primary.Recoil * -1 
-		local rndb = self.Primary.Recoil * math.random(-1, 1) 
+    
+        local punchScale = self.RecoilScale * 3
+    
+		local rnda = -punchScale
+		local rndb = math.random(-punchScale, punchScale) 
 		
 		if self.Zoomed then
-			rnda = rnda * 0.25
-			rndb = rndb * 0.25
+			rnda = rnda * 0.5
+			rndb = rndb * 0.5
 		end
 		
 		self.Owner:ViewPunch( Angle( rnda,rndb,rnda/4 ) ) 
+    else
+        local aimAng = self.Owner:EyeAngles()
+        local scale = self:CalculateVisRecoilScale() * self.RecoilScale
+        local addAxis = (aimAng:Right() + VectorRand() * 0.3) * scale
+        
+        self.RecoilAxis = self.RecoilAxis + addAxis
 	end
 end
+
+
+
+
+function SWEP:CalculateVisRecoilScale()
+
+    local moving = self.Owner:KeyDown(IN_FORWARD) or self.Owner:KeyDown(IN_BACK) or self.Owner:KeyDown(IN_MOVELEFT) or self.Owner:KeyDown(IN_MOVERIGHT)
+    local crouching = self.Owner:KeyDown(IN_DUCK) or inVehicle
+    local zoomed = self:GetNetworkedBool("Zoomed")
+    
+    local inacc = 1
+    
+    if zoomed then 
+        if crouching and not moving then 
+            inacc = 0.3
+        elseif not moving then
+            inacc = 0.5
+        elseif crouching then 
+            inacc = 0.6
+        else
+            inacc = 0.7
+        end
+    elseif crouching then
+        inacc = 0.7
+    end
+    
+    return inacc
+
+end
+
 
 
 
@@ -404,4 +447,5 @@ function SWEP:Equip(ply)
 	self.Owner = ply
 	self:SetNextPrimaryFire(CurTime())
     self:UpdateTracers()
+    self.RecoilAxis = Vector(0,0,0)
 end

@@ -8,27 +8,10 @@ SWEP.BobScale			= 0.5					-- The scale of the viewmodel bob
 SWEP.IsACF				= true
 
 
-/*
-local function discoverMuzzle(self)
-	local vm = self.Owner:GetViewModel()
-	if not (vm and IsValid(vm)) then return end
-	
-	local atts = vm:GetAttachments()
-	PrintTable(atts)
-	
-	for k, v in pairs(atts) do
-		if v.name == "muzzle" then
-			return v.id
-		end
-	end
-	
-	return 1
-end
-//*/
 
 
 function SWEP:Initialize()
-	//print("wep init", self.Owner)
+
 	if not IsValid(self.Owner) then return end
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()
@@ -54,23 +37,9 @@ function SWEP:Initialize()
 	self.zoomProgress = 1
 	
 	self:InitBulletData()
-	
-	--print(self:GetParent())
-	
-	//self.Zoomed = false
-	/*
-	self.VMInstance = self.Owner:GetViewModel()
-	if not (self.VMInstance and IsValid(self.VMInstance)) then 
-		self.VMInstance = nil
-		self.Muzzle = nil
-		return
-	end
-	
-	self.VMInstance:SetNoDraw(true)
-	
-	self.Muzzle = self.WeaponBone and self.VMInstance:LookupBone(self.WeaponBone) or -1
-	//*/
+    
 end
+
 
 
 
@@ -124,6 +93,7 @@ end
 
 
 
+
 function SWEP:AdjustMouseSensitivity()
 	if not self.defaultFOV then self.defaultFOV = self.Owner:GetFOV() end
 
@@ -133,6 +103,7 @@ function SWEP:AdjustMouseSensitivity()
 	
 	return 1
 end
+
 
 
 
@@ -170,13 +141,7 @@ function SWEP:DrawScope()
 	surface.DrawLine(scrw2 + centersep - devx, scrh2 - devy, scrw - devx, scrh2 - devy)
 	surface.DrawLine(scrw2 - devx, scrh - devy, scrw2 - devx, scrh2 + centersep - devy)
 	
-	--local aimRadius = scrw / 2 * self.curVisInacc / self.Owner:GetFOV()
-	--surface.DrawCircle(scrpos.x, scrpos.y, aimRadius, Color(50, 50, 50, 200) )
-	--draw.Arc(scrpos.x, scrpos.y, aimRadius, -3, 0, 360, 2, Color(0, 0, 0, 255))
-	--draw.Arc(scrpos.x, scrpos.y, aimRadius, -1.5, 0, 360, 2, Color(255, 255, 255, 255))
-	
-	--surface.DrawCircle(scrw2 - devx, scrh2 - devy, 2, Color(0,0,0))
-	
+
 	surface.SetDrawColor(0, 0, 0, 255) 
 	
 	surface.SetMaterial(Material("gmod/scope"))
@@ -195,114 +160,6 @@ end
 
 
 
-/**
-local function DrawHUD()
-	local self = LocalPlayer():GetActiveWeapon()
-	if not (IsValid(self) and self.IsACF) then return end
-	
-	scrpos = LocalPlayer():GetEyeTrace().HitPos:ToScreen()
-	
-	//surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / LocalPlayer():GetFOV() , Color(0, 255, 0) )
-	surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / LocalPlayer():GetFOV() , HSVToColor( self.Stamina * 120, 1, 1 ) )
-end
-hook.Add("HUDPaint", "XCF_BaseSWEP_DrawHUD", DrawHUD)
-//*/
-
-
-/*
-local function FinishScopeChop(self2)
-
-	local self = self2 or LocalPlayer():GetActiveWeapon()
-	if not (IsValid(self) and self.IsACF) then return end
-	if !(self.ScopeChopPos and self.ScopeChopPlane and self.ScopeChopping) then return end
-	
-	render.PopCustomClipPlane()
-	render.EnableClipping( false )
-	
-	self.ScopeChopping = false
-
-end
-//hook.Add("PostDrawViewModel", "XCF_BaseSWEP_PostDrawViewModel", FinishScopeChop)
-
-
-
-local function SetupScopeChop(self2)
-	
-	local self = self2 or LocalPlayer():GetActiveWeapon()
-	if not (IsValid(self) and self.IsACF) then return end
-	if !(self.Muzzle and self.ScopeChopPos and self.ScopeChopAngle) then return end
-	
-	//self.VMInstance:SetNoDraw(false)
-	
-	local muzzle = self.VMInstance:GetBoneMatrix(self.Muzzle)
-	
-	local pos, ang
-	if muzzle then
-		pos, ang = muzzle:GetTranslation(), muzzle:GetAngles()
-	end
-			
-	if self.ViewModelFlip then
-		ang.r = -ang.r
-	end
-	
-	local vpos = self.ScopeChopPos
-	local vangle = self.ScopeChopAngle
-	
-	local drawpos = pos + ang:Forward() * vpos.x + ang:Right() * vpos.y + ang:Up() * vpos.z
-	ang:RotateAroundAxis(ang:Up(), vangle.y)
-	ang:RotateAroundAxis(ang:Right(), vangle.p)
-	ang:RotateAroundAxis(ang:Forward(), vangle.r)
-	
-	//local origin, norm = self.ScopeChopPos, self.ScopeChopPlane
-	local origin, norm = drawpos, ang:Forward()
-	//local origin, norm = LocalToWorld(pos, ang, muzzle:GetTranslation(), muzzle:GetAngles())
-	//local norm = norm:Forward()
-	//origin, norm = LocalToWorld(self.ScopeChopPos, self.ScopeChopPlane:Angle(), self.Muzzle.Pos, self.Muzzle.Ang)
-	
-	if (origin and norm) then
-		render.EnableClipping( true )			
-		render.PushCustomClipPlane( norm, norm:Dot( origin ) )
-	
-		self.ScopeChopping = true
-	end
-
-	//self.VMInstance:DrawModel()
-	
-	//FinishScopeChop(self)
-	
-	//self.VMInstance:SetNoDraw(true)
-	
-end
-//hook.Add("PreDrawViewModel", "XCF_BaseSWEP_PreDrawViewModel", SetupScopeChop)
-//*/
-
-
-
-surface.CreateFont( "XCFSWEPReload", {
-	font = "Arial",
-	size = 18,
-	weight = 500,
-	blursize = 0,
-	scanlines = 0,
-	antialias = false,
-	underline = false,
-	italic = false,
-	strikeout = false,
-	symbol = false,
-	rotary = false,
-	shadow = false,
-	additive = false,
-	outline = true
-} )
-
-
-
-function SWEP:DrawHUD()
-	-- moved to hook because arcs don't appear for a while if called here
-end
-
-
-
 
 function SWEP:DrawReticule(screenpos, aimRadius, fillFraction, colourFade)
 	if not CLIENT then return end
@@ -313,17 +170,32 @@ end
 
 
 
-hook.Add("HUDPaint", "ACFWep_HUD", function()
+local function GetCurrentACFSWEP()
 
-	if not (LocalPlayer():Alive() or LocalPlayer():InVehicle()) then return end
+    if not (LocalPlayer():Alive() or LocalPlayer():InVehicle()) then return end
 	local self = LocalPlayer():GetActiveWeapon()
 	if not self.IsACF then return end
 
-	--draw.Arc(200, 200, 50, 5, 0, 180, 5, Color(255, 255, 0, 255))
+	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
+    
+    return self
+
+end
+
+
+
+
+
+hook.Add("HUDPaint", "ACFWep_HUD", function()
+
+	
+	local self = GetCurrentACFSWEP()
+	if not self then return end
+
 
 	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
 
-	local drawcircle = true--not self:DrawScope()
+	local drawcircle = true
 	
 	local scrpos
 	if drawcircle then
@@ -379,17 +251,8 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 	
 	self.lastHUDDraw = CurTime()
 	
-	//SetupScopeChop(self)
 end)
 
-
-
-
-/*
-function SWEP:Reload()
-	self:SetZoom(false)
-end
-//*/
 
 
 
@@ -412,18 +275,13 @@ end
 
 
 
-/*
-SWEP.LastWobble = Vector()
-SWEP.WobbleTo = Vector()
-SWEP.LastWobblePoll = CurTime()
-//*/
+
 local lissax = 3
 local lissay = 4
 local lissasep = math.pi / 2
 function SWEP:GetViewModelPosition( pos, ang )
-	if not CLIENT then return pos, ang end	// idk.
-	
-	--print("Before: ", pos, ang)
+
+	if not CLIENT then return pos, ang end
 	
 	self.lastViewMod = self.lastViewMod or RealTime()
 	
@@ -432,10 +290,8 @@ function SWEP:GetViewModelPosition( pos, ang )
 	local time = CurTime() * 0.33
 	local accuracy = (self.Inaccuracy * 0.02 + self.lastaccuracy * 0.98) * 0.25
 	
-	--ang = self.Owner:EyeAngles()
 	ang = self.Owner:GetAimVector():Angle()
 	local trace = self.Owner:GetEyeTrace()
-	--ang = self.Owner:GetEyeTrace()
 	
 	local x = accuracy * math.sin(lissax * time + lissasep + time*0.01)
 	local y = accuracy * math.sin(lissay * time)
@@ -448,22 +304,54 @@ function SWEP:GetViewModelPosition( pos, ang )
 	self.lastaccuracy = accuracy * 4
 	
 	local tween = self:ZoomTween(self.zoomProgress)
-	--print(self.zoomProgress, tween)
 	
 	self.curPos = LerpVector(tween, self.fromPos, self.toPos)
 	local modpos = pos + self.curPos
 	self.curAng = LerpAngle(tween, self.fromAng, self.toAng)
 	sway = sway + self.curAng
 	
-	local pos2, aim2 = LocalToWorld(self.curPos, sway, pos, ang)//(aim + wobble):GetNormalized()
-	--print(pos, pos2)
+	local pos2, aim2 = LocalToWorld(self.curPos, sway, pos, ang)
 	
 	self.zoomProgress = math.Clamp(self.zoomProgress + (RealTime() - self.lastViewMod) * 1 / (self.ZoomTime or 1), 0, 1)
-	--print((RealTime() - self.lastViewMod), self.zoomProgress)
 	self.lastViewMod = RealTime()
-	
-	--print("After:  ", pos, ang)
 	
 	return pos2, aim2
 
 end
+
+
+
+
+hook.Add( "PreRender", "ACFWep_PreRender", function()
+
+    local self = GetCurrentACFSWEP()
+	if not self then return end
+    
+    local axis = self.RecoilAxis
+    if not axis then return end
+    
+    local axisLength = axis:Length()
+    if axisLength < 0.001 then
+        self.RecoilAxis = Vector(0,0,0)
+        return
+    end
+    
+    
+    local ply = LocalPlayer()
+    local eye = ply:EyeAngles()
+    local roll = eye.r
+    
+    local normAxis = axis:GetNormalized()
+
+    eye:RotateAroundAxis(normAxis, axisLength)
+    eye.r = roll
+    
+    ply:SetEyeAngles(eye)
+    
+    
+    self.RecoilAxis = axis - axis * self.RecoilDamping
+    
+end )
+
+
+

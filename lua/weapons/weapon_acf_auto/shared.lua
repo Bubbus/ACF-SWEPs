@@ -54,12 +54,12 @@ SWEP.IronSightsPos = Vector(-3.23, 5.15, 2.290)
 SWEP.ZoomPos = Vector(2,2,2)
 SWEP.IronSightsAng = Angle(0, 0, 0)
 
-SWEP.MinInaccuracy = 0.7
-SWEP.MaxInaccuracy = 8
+SWEP.MinInaccuracy = 0.45
+SWEP.MaxInaccuracy = 5.5
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.25
 SWEP.AccuracyDecay = 0.35
-SWEP.InaccuracyPerShot = 3.5
+SWEP.InaccuracyPerShot = 2.5
 SWEP.InaccuracyCrouchBonus = 1.2
 SWEP.InaccuracyDuckPenalty = 3.5
 
@@ -75,6 +75,9 @@ SWEP.ZoomFOV = 65
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+
+SWEP.RecoilScale = 0.4
+SWEP.RecoilDamping = 0.27
 
 
 function SWEP:InitBulletData()

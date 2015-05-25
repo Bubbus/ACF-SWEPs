@@ -1,6 +1,8 @@
 	AddCSLuaFile( "shared.lua" )
 	SWEP.HoldType			= "ar2"
 
+DEFINE_BASECLASS( "weapon_acf_base" )
+    
 if (CLIENT) then
 	
 	SWEP.PrintName			= "ACF Machine Gun"
@@ -51,12 +53,12 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 0.8
-SWEP.MaxInaccuracy = 10
+SWEP.MinInaccuracy = 0.55
+SWEP.MaxInaccuracy = 6.6
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.14
 SWEP.AccuracyDecay = 6
-SWEP.InaccuracyPerShot = 1.8
+SWEP.InaccuracyPerShot = 1.2
 SWEP.InaccuracyCrouchBonus = 2
 SWEP.InaccuracyDuckPenalty = 10
 
@@ -77,6 +79,9 @@ SWEP.IronSightsAng = Angle(0.35, 0, 0)
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+
+SWEP.RecoilScale = 0.3
+SWEP.RecoilDamping = 0.25
 
 
 function SWEP:InitBulletData()
@@ -110,4 +115,21 @@ function SWEP:InitBulletData()
 	self.BulletData["Id"] 				=	"7.62mmMG"
 	self.BulletData["InvalidateTraceback"]			= true
 	
+end
+
+
+
+
+function SWEP:CalculateVisRecoilScale()
+
+    local moving = self.Owner:KeyDown(IN_FORWARD) or self.Owner:KeyDown(IN_BACK) or self.Owner:KeyDown(IN_MOVELEFT) or self.Owner:KeyDown(IN_MOVERIGHT)
+    local crouching = self.Owner:KeyDown(IN_DUCK) or inVehicle
+    local zoomed = self:GetNetworkedBool("Zoomed")
+    
+    if zoomed and crouching and not moving then 
+        return 0.06
+    else
+        return self.BaseClass.CalculateVisRecoilScale(self)
+    end
+
 end
