@@ -76,8 +76,8 @@ SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
 
-SWEP.RecoilScale = 0.4
-SWEP.RecoilDamping = 0.27
+SWEP.RecoilScale = 0.2
+SWEP.RecoilDamping = 0.18
 
 
 function SWEP:InitBulletData()

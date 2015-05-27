@@ -76,7 +76,7 @@ SWEP.FlashClass = "MO"
 SWEP.Launcher = false
 SWEP.AlwaysDust = true
 
-SWEP.RecoilScale = 1.75
+SWEP.RecoilScale = 0.88
 SWEP.RecoilDamping = 0.12
 
 

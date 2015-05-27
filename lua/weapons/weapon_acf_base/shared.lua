@@ -140,9 +140,27 @@ function SWEP:Think()
 	if SERVER then
 		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
 		self:SetNetworkedFloat("ServerStam", self.Owner.XCFStamina)
+        
+        if self.Zoomed and not self:CanZoom() then
+            self:SetZoom(false)
+        end
+        
 	end
 	
 end
+
+
+
+
+function SWEP:CanZoom()
+
+    local sprinting = self.Owner:KeyDown(IN_SPEED)
+    if sprinting then return false end
+    
+    return true
+
+end
+
 
 
 
@@ -158,6 +176,7 @@ function SWEP:SetZoom(zoom)
 	if SERVER then self:SetNetworkedBool("Zoomed", self.Zoomed) end
 	
 	if self.Zoomed then
+    
 		self.cachedmin = self.cachedmin or self.MinInaccuracy
 		self.cacheddecayin = self.cacheddecayin or self.InaccuracyDecay
 		self.cacheddecayac = self.cacheddecayac or self.AccuracyDecay
@@ -166,8 +185,13 @@ function SWEP:SetZoom(zoom)
 		self.InaccuracyDecay = self.InaccuracyDecay * self.ZoomDecayMod
 		self.AccuracyDecay = self.AccuracyDecay * self.ZoomDecayMod
 		
-		if SERVER then self.Owner:SetFOV(self.ZoomFOV, 0.25) end
+		if SERVER then 
+            self:SetOwnerZoomSpeed(true)
+            self.Owner:SetFOV(self.ZoomFOV, 0.25) 
+        end
+        
 	else			
+    
 		self.MinInaccuracy = self.cachedmin
 		self.InaccuracyDecay = self.cacheddecayin
 		self.AccuracyDecay = self.cacheddecayac
@@ -176,18 +200,51 @@ function SWEP:SetZoom(zoom)
 		self.cacheddecayin = nil
 		self.cacheddecayac = nil
 		
-		if SERVER then self.Owner:SetFOV(0, 0.25) end
+		if SERVER then 
+            self:SetOwnerZoomSpeed(false)
+            self.Owner:SetFOV(0, 0.25) 
+        end
+        
 	end
 
 end
 
 
 
+
+function SWEP:SetOwnerZoomSpeed(setSpeed)
+
+    if setSpeed then
+    
+        self.NormalPlayerWalkSpeed = self.Owner:GetWalkSpeed()
+        self.NormalPlayerRunSpeed = self.Owner:GetRunSpeed()
+    
+        self.Owner:SetWalkSpeed( self.NormalPlayerWalkSpeed * 0.5 )
+        self.Owner:SetRunSpeed( self.NormalPlayerRunSpeed * 0.5 )
+        
+    elseif self.NormalPlayerWalkSpeed and self.NormalPlayerRunSpeed then
+    
+        self.Owner:SetWalkSpeed( self.NormalPlayerWalkSpeed )
+        self.Owner:SetRunSpeed( self.NormalPlayerRunSpeed )
+        
+        self.NormalPlayerWalkSpeed = nil
+        self.NormalPlayerRunSpeed = nil
+        
+    end
+
+end
+
+
+
+
 function SWEP:Holster()
 	
+    self:SetOwnerZoomSpeed(false)
+    
 	return true
     
 end
+
 
 
 
@@ -282,16 +339,16 @@ function SWEP:CalculateVisRecoilScale()
     
     if zoomed then 
         if crouching and not moving then 
-            inacc = 0.3
-        elseif not moving then
             inacc = 0.5
+        elseif not moving then
+            inacc = 0.65
         elseif crouching then 
-            inacc = 0.6
+            inacc = 0.8
         else
-            inacc = 0.7
+            inacc = 0.8
         end
     elseif crouching then
-        inacc = 0.7
+        inacc = 0.85
     end
     
     return inacc
@@ -304,7 +361,7 @@ end
 SWEP.Zoomed = false
 function SWEP:SecondaryAttack()
 
-	if SERVER and self.HasZoom then
+	if SERVER and self.HasZoom and self:CanZoom() then
 		self:SetZoom()
 	end
 
@@ -444,8 +501,15 @@ end
 
 
 function SWEP:Equip(ply)
+
 	self.Owner = ply
+    
 	self:SetNextPrimaryFire(CurTime())
+    
     self:UpdateTracers()
+    
     self.RecoilAxis = Vector(0,0,0)
+    
+    self:SetOwnerZoomSpeed(false)
+    
 end

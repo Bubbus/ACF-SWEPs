@@ -51,8 +51,8 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false
 
-SWEP.MinInaccuracy = 1
-SWEP.MaxInaccuracy = 12
+SWEP.MinInaccuracy = 0.25
+SWEP.MaxInaccuracy = 9
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.13
 SWEP.AccuracyDecay = 0.3
@@ -77,7 +77,7 @@ SWEP.Class = "C"
 SWEP.FlashClass = "AC"
 SWEP.Launcher = true
 
-SWEP.RecoilScale = 2
+SWEP.RecoilScale = 0.5
 SWEP.RecoilDamping = 0.11
 
 
