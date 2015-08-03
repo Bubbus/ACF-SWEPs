@@ -76,7 +76,7 @@ SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
 
-SWEP.RecoilScale = 0.2
+SWEP.RecoilScale = 0.18
 SWEP.RecoilDamping = 0.18
 
 

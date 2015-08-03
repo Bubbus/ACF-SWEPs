@@ -327,6 +327,8 @@ hook.Add( "PreRender", "ACFWep_PreRender", function()
     local self = GetCurrentACFSWEP()
 	if self then    
     
+		local curTime = CurTime()
+	
         local axis = self.RecoilAxis
         if axis then 
         
@@ -335,28 +337,35 @@ hook.Add( "PreRender", "ACFWep_PreRender", function()
             
                 self.RecoilAxis = Vector(0,0,0)
                 
-            else
+            else -- axisLength / self.RecoilDamping = x
             
+				local recoilDamping = self.RecoilDamping * 20000
+			
+				local timeDiff = curTime - (self.lastPreRender or curTime)
+				local decayTime = axisLength / recoilDamping
+				local timeDiff = math.min(timeDiff, decayTime)
+			
+				local accumulatedRecoil = axisLength * timeDiff - (recoilDamping * timeDiff * timeDiff) / 2
+				local newAxisLength = -recoilDamping * timeDiff + axisLength
+			
                 local ply = LocalPlayer()
                 local eye = ply:EyeAngles()
                 local roll = eye.r
                 
                 local normAxis = axis:GetNormalized()
 
-                eye:RotateAroundAxis(normAxis, axisLength)
+                eye:RotateAroundAxis(normAxis, accumulatedRecoil)
                 eye.r = roll
                 
                 ply:SetEyeAngles(eye)
-                
-                local timeDiff = CurTime() - (self.lastPreRender or CurTime())
-                
-                self.RecoilAxis = axis - axis * self.RecoilDamping * timeDiff * 60
+				
+				self.RecoilAxis = normAxis * newAxisLength
             
             end
 
         end
         
-        self.lastPreRender = CurTime()
+        self.lastPreRender = curTime
         
     end
     

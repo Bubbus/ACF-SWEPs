@@ -306,7 +306,7 @@ end
 function SWEP:VisRecoil()
 	if SERVER then
     
-        local punchScale = self.RecoilScale * 3
+        local punchScale = self.RecoilScale * self.RecoilScale * 16
     
 		local rnda = -punchScale
 		local rndb = math.random(-punchScale, punchScale) 
@@ -316,13 +316,13 @@ function SWEP:VisRecoil()
 			rndb = rndb * 0.5
 		end
 		
-		self.Owner:ViewPunch( Angle( rnda,rndb,rnda/4 ) ) 
+		self.Owner:ViewPunch( Angle( rnda,rndb,rnda/3 ) ) 
     else
         local aimAng = self.Owner:EyeAngles()
         local scale = self:CalculateVisRecoilScale() * self.RecoilScale
         local addAxis = (aimAng:Right() + VectorRand() * 0.3) * scale
         
-        self.RecoilAxis = self.RecoilAxis + addAxis
+        self.RecoilAxis = self.RecoilAxis + addAxis * 500
 	end
 end
 
