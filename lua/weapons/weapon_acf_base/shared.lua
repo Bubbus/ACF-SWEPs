@@ -240,7 +240,8 @@ end
 function SWEP:Holster()
 	
     self:SetOwnerZoomSpeed(false)
-    
+    self.LastAmmoCountAppliedRecoil = nil
+	
 	return true
     
 end
@@ -304,6 +305,9 @@ end
 
 
 function SWEP:VisRecoil()
+
+	if self:Clip1() == self.LastAmmoCountAppliedRecoil then return end
+
 	if SERVER then
     
         local punchScale = self.RecoilScale * self.RecoilScale * 16
@@ -321,8 +325,9 @@ function SWEP:VisRecoil()
         local aimAng = self.Owner:EyeAngles()
         local scale = self:CalculateVisRecoilScale() * self.RecoilScale
         local addAxis = (aimAng:Right() + VectorRand() * 0.3) * scale
-        
-        self.RecoilAxis = self.RecoilAxis + addAxis * 500
+        self.LastAmmoCountAppliedRecoil = self:Clip1()
+		
+        self.RecoilAxis = self.RecoilAxis + addAxis * 600
 	end
 end
 
@@ -392,6 +397,8 @@ function SWEP:Reload()
 	
 		self:SetInaccuracy(self.MaxInaccuracy)
 	end
+	
+	self.LastAmmoCountAppliedRecoil = nil
 
 end
 
@@ -509,6 +516,7 @@ function SWEP:Equip(ply)
     self:UpdateTracers()
     
     self.RecoilAxis = Vector(0,0,0)
+	self.LastAmmoCountAppliedRecoil = nil
     
     self:SetOwnerZoomSpeed(false)
     

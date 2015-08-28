@@ -61,8 +61,8 @@ end
 
 
 
-local nosplode = {AP = true, HP = true}
-local nopen = {HE = true, SM = true}
+local nosplode = {AP = true, HP = true, FLR = true}
+local nopen = {HE = true, SM = true, FLR = true}
 function SWEP:DoAmmoStatDisplay()
     
     local bdata = self.BulletData

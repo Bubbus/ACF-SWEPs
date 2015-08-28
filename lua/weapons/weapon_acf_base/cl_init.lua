@@ -120,8 +120,8 @@ function SWEP:DrawScope()
 	local trace = util.TraceLine(traceargs)
 		
 	local scrpos = trace.HitPos:ToScreen()
-	local devx = scrw2 - scrpos.x
-	local devy = scrh2 - scrpos.y
+	local devx = scrw2 - scrpos.x - 0.5
+	local devy = scrh2 - scrpos.y - 0.5
 
 	surface.SetDrawColor(0, 0, 0, 255) 
 
@@ -327,7 +327,7 @@ hook.Add( "PreRender", "ACFWep_PreRender", function()
     local self = GetCurrentACFSWEP()
 	if self then    
     
-		local curTime = CurTime()
+		local curTime = SysTime()
 	
         local axis = self.RecoilAxis
         if axis then 
@@ -337,9 +337,9 @@ hook.Add( "PreRender", "ACFWep_PreRender", function()
             
                 self.RecoilAxis = Vector(0,0,0)
                 
-            else -- axisLength / self.RecoilDamping = x
-            
-				local recoilDamping = self.RecoilDamping * 20000
+            else
+			
+				local recoilDamping = self.RecoilDamping * 18000
 			
 				local timeDiff = curTime - (self.lastPreRender or curTime)
 				local decayTime = axisLength / recoilDamping

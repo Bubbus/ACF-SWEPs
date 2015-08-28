@@ -403,7 +403,8 @@ if CLIENT then
 		if self.ShotSpread and self.ShotSpread > 0 then
 			radius = ScrW() / 2 * (self.ShotSpread) / self.Owner:GetFOV()
 			
-			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
+			draw.Arc(screenpos.x, screenpos.y, radius, 2, 0, 360, 3, Color(0, 0, 0, 128))
+			--surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
 			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
 		
@@ -418,9 +419,9 @@ if CLIENT then
 		
 		surface.SetDrawColor(circlehue)
 		surface.DrawLine((screenpos.x + radius), screenpos.y, (screenpos.x + (radius + CrosshairLength * progress)), screenpos.y)
-		surface.DrawLine((screenpos.x - radius), screenpos.y, (screenpos.x - (radius + CrosshairLength * progress)), screenpos.y)
+		surface.DrawLine((screenpos.x - radius), screenpos.y, (screenpos.x - (radius + CrosshairLength * progress) - 1), screenpos.y)
 		surface.DrawLine(screenpos.x, (screenpos.y + radius), screenpos.x, (screenpos.y + (radius + CrosshairLength * progress)))
-		surface.DrawLine(screenpos.x, (screenpos.y - radius), screenpos.x, (screenpos.y - (radius + CrosshairLength * progress)))
+		surface.DrawLine(screenpos.x, (screenpos.y - radius), screenpos.x, (screenpos.y - (radius + CrosshairLength * progress) - 1))
 		
 		
 		--draw.Arc(screenpos.x, screenpos.y, radius, -1.5, (1-progress)*360, 360, 5, circlehue)
