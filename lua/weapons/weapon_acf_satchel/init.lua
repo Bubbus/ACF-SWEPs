@@ -34,8 +34,42 @@ end
 
 
 
+local up = Vector(0, 0, 1)
+local thinktime = 0.1
+
 function SWEP.grenadeExplode(bomb)
 	if IsValid(bomb) then 
+		
+		local tracedir
+		
+		if IsValid(bomb:GetParent()) and bomb.LocalSurfaceNormal then
+			
+			tracedir = -( bomb:LocalToWorld(bomb.LocalSurfaceNormal) - bomb:GetPos() )
+		
+		else			
+			local pos = bomb:GetPos()
+			local vel = bomb:GetVelocity()
+			
+			if vel:Length() < 10 then
+				local entup = bomb:GetUp()
+				local entdn = -entup
+				
+				if entup:Dot(up) >= entdn:Dot(up) then
+					tracedir = entup
+				else
+					tracedir = entdn
+				end
+				
+			else
+				tracedir = vel:GetNormalized()
+			end
+		end
+		
+		bomb.BulletData.Flight = tracedir * (bomb.BulletData.SlugMV or 1000)
+		
+		debugoverlay.Cross( bomb:GetPos(), 4, 10, Color(255, 0, 0), true )
+		debugoverlay.Line( bomb:GetPos(), bomb:GetPos() + bomb.BulletData.Flight, 10, Color(255, 0, 0), true )
+	
 		bomb:Detonate()
 	end
 end
@@ -52,10 +86,12 @@ function SWEP.grenadeTraceHit(bomb, trace)
 		and not (hitent:GetClass() == "acf_grenade") and not (hitent == bomb:GetOwner()) 
 		and not hitent:IsPlayer() and not hitent:IsNPC() then
 		
-		local setpos = trace.HitPos - trace.HitNormal * 1
+		if (trace.HitNormal:Length() < 0.99) then
+			local vel = bomb:GetVelocity()
+			trace.HitNormal = (vel:Length() < 0.99) and vel:GetNormalized() or bomb:GetUp()
+		end
 		
-		--debugoverlay.Sphere( setpos, bomb:BoundingRadius(), 10, Color(255, 0, 0), true )
-		--debugoverlay.Cross( trace.HitPos, 10, 10, Color(0, 255, 0), true )
+		local setpos = trace.HitPos - trace.HitNormal * 1
 		
 		bomb:SetPos(setpos)
 		local forward = trace.HitNormal:Cross(VectorRand():GetNormalized()):GetNormalized()
@@ -63,7 +99,8 @@ function SWEP.grenadeTraceHit(bomb, trace)
 		ang:RotateAroundAxis(forward, 90)
 		bomb:SetAngles(ang)
 		bomb:SetParent(trace.Entity)
-		--bomb.grenadeExplode(bomb)
+		
+		bomb.LocalSurfaceNormal = bomb:WorldToLocal(trace.HitNormal + bomb:GetPos())
 	end
 end
 

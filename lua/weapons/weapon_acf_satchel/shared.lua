@@ -83,15 +83,15 @@ function SWEP:InitBulletData()
 	self.BulletData = {}
 	self.BulletData["Colour"]		= Color(255, 255, 255)
 	self.BulletData["Data10"]		= "0.00"
-	self.BulletData["Data5"]		= "1400.00"
-	self.BulletData["Data6"]		= "30.000000"
-	self.BulletData["Data7"]		= "0"
-	self.BulletData["Data8"]		= "0"
-	self.BulletData["Data9"]		= "0"
-	self.BulletData["Id"]		= "75mmHW"
-	self.BulletData["ProjLength"]		= "41.09"
-	self.BulletData["PropLength"]		= "0.01"
-	self.BulletData["Type"]		= "HE"
+	self.BulletData["Data5"]		= "4976.37"
+	self.BulletData["Data6"]		= "86.55"
+	self.BulletData["Data7"]		= ""
+	self.BulletData["Data8"]		= ""
+	self.BulletData["Data9"]		= ""
+	self.BulletData["Id"]		= "122mmHW"
+	self.BulletData["ProjLength"]		= "101.40"
+	self.BulletData["PropLength"]		= "3.90"
+	self.BulletData["Type"]		= "HEAT"
 	
 	self.BulletData.IsShortForm = true
 	

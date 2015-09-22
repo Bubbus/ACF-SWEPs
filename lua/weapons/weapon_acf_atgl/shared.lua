@@ -40,7 +40,7 @@ SWEP.Primary.Sound 			= "acf_extra/tankfx/gnomefather/8mm1.wav"
 
 util.PrecacheSound( SWEP.Primary.Sound )
 
-SWEP.ReloadTime				= 8
+SWEP.ReloadTime				= 9
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -77,8 +77,8 @@ SWEP.Class = "C"
 SWEP.FlashClass = "AC"
 SWEP.Launcher = true
 
-SWEP.RecoilScale = 0.6
-SWEP.RecoilDamping = 0.2
+SWEP.RecoilScale = 0.8
+SWEP.RecoilDamping = 0.17
 
 
 function SWEP:InitBulletData()
@@ -86,35 +86,35 @@ function SWEP:InitBulletData()
 	self.BulletData = {}
 	
 	self.BulletData["Accel"]		= Vector(0.000000, 0.000000, -600.000000)
-	self.BulletData["BoomFillerMass"]		= 0.32073345780373
-	self.BulletData["BoomPower"]		= 0.97947913408279
-	self.BulletData["Caliber"]		= 5
-	self.BulletData["CasingMass"]		= 2.6249613761902
+	self.BulletData["BoomFillerMass"]		= 1.866775862069
+	self.BulletData["BoomPower"]		= 5.6769826262069
+	self.BulletData["Caliber"]		= 10
+	self.BulletData["CasingMass"]		= 9.4535766450532
 	self.BulletData["Colour"]		= Color(255, 255, 255)
 	self.BulletData["Detonated"]		= false
-	self.BulletData["DragCoef"]		= 0.00054306507809088
-	self.BulletData["FillerMass"]		= 0.96220034360886
-	self.BulletData["FrAera"]		= 19.635000228882
-	self.BulletData["Id"]		= "50mmC"
-	self.BulletData["KETransfert"]		= 0.10000000149012
+	self.BulletData["DragCoef"]		= 0.00049560917633132
+	self.BulletData["FillerMass"]		= 5.6003275862069
+	self.BulletData["FrAera"]		= 78.54
+	self.BulletData["Id"]		= "100mmSC"
+	self.BulletData["KETransfert"]		= 0.1
 	self.BulletData["LimitVel"]		= 100
-	self.BulletData["MuzzleVel"]		= 100.1789855957
+	self.BulletData["MuzzleVel"]		= 100.78693207994
 	self.BulletData["NotFirstPen"]		= false
-	self.BulletData["PenAera"]		= 12.562505722046
-	self.BulletData["ProjLength"]		= 61.450000762939
-	self.BulletData["ProjMass"]		= 3.6155889034271
-	self.BulletData["PropLength"]		= 0.54999923706055
-	self.BulletData["PropMass"]		= 0.017278775572777
+	self.BulletData["PenAera"]		= 40.815701243399
+	self.BulletData["ProjLength"]		= 89.7
+	self.BulletData["ProjMass"]		= 15.847164207366
+	self.BulletData["PropLength"]		= 0.61
+	self.BulletData["PropMass"]		= 0.07665504
 	self.BulletData["Ricochet"]		= 60
-	self.BulletData["RoundVolume"]		= 1217.3699951172
-	self.BulletData["ShovePower"]		= 0.10000000149012
-	self.BulletData["SlugCaliber"]		= 1.1075661182404
-	self.BulletData["SlugDragCoef"]		= 0.0033891978673637
-	self.BulletData["SlugMV"]		= 3608.6840820313
-	self.BulletData["SlugMass"]		= 0.028427148237824
-	self.BulletData["SlugPenAera"]		= 0.96884804964066
+	self.BulletData["RoundVolume"]		= 7092.9474
+	self.BulletData["ShovePower"]		= 0.1
+	self.BulletData["SlugCaliber"]		= 2.6733351371743
+	self.BulletData["SlugDragCoef"]		= 0.00070759078367224
+	self.BulletData["SlugMV"]		= 1531.2071598766
+	self.BulletData["SlugMass"]		= 0.7932599761062
+	self.BulletData["SlugPenAera"]		= 4.3332929833938
 	self.BulletData["SlugRicochet"]		= 500
-	self.BulletData["Tracer"]		= 1
+	self.BulletData["Tracer"]		= 0.5
 	self.BulletData["Type"]		= "HEAT"
 
 	self.BulletData["InvalidateTraceback"]			= true
